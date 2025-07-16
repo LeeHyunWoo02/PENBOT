@@ -1,4 +1,4 @@
-package Project.PENBOT.Dto;
+package Project.PENBOT.Entity;
 
 public enum PayStatus {
     PENDING,   // 결제 대기 중

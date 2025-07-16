@@ -1,4 +1,4 @@
-package Project.PENBOT.Dto;
+package Project.PENBOT.Entity;
 
 public enum Sender {
     USER,

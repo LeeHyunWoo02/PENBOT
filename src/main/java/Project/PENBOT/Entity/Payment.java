@@ -1,4 +1,4 @@
-package Project.PENBOT.Dto;
+package Project.PENBOT.Entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
