@@ -1,5 +1,10 @@
 package Project.PENBOT.Config;
 
+import Project.PENBOT.User.Filter.JwtFilter;
+import Project.PENBOT.User.Handler.CustomOauth2FailureHandler;
+import Project.PENBOT.User.Handler.CustomOauth2SuccessHandler;
+import Project.PENBOT.User.Service.CustomOauth2UserService;
+import Project.PENBOT.User.Util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +22,20 @@ import java.util.Collections;
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
+
+    private final CustomOauth2UserService customOauth2UserService;
+    private final JwtUtil jwtUtil;
+    private final CustomOauth2SuccessHandler customOauth2SuccessHandler;
+    private final CustomOauth2FailureHandler customOauth2FailureHandler;
+
+    public SecurityConfig(CustomOauth2UserService customOauth2UserService, JwtUtil jwtUtil,
+                          CustomOauth2SuccessHandler customOauth2SuccessHandler, CustomOauth2FailureHandler customOauth2FailureHandler) {
+        this.customOauth2UserService = customOauth2UserService;
+        this.jwtUtil = jwtUtil;
+        this.customOauth2SuccessHandler = customOauth2SuccessHandler;
+        this.customOauth2FailureHandler = customOauth2FailureHandler;
+    }
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
@@ -37,26 +56,25 @@ public class SecurityConfig {
         http
                 .csrf((csrf) -> csrf.disable());
 
-//        /**
-//         * OAuth2 로그인 로직
-//         * */
-//        http
-//                .oauth2Login((oauth) -> oauth
-//                        .userInfoEndpoint((userInfo) ->
-//                                {userInfo.userService(customOauth2UserService);}
-//                        )
-//                        .successHandler(customOAuth2SuccessHandler)
-//                        .failureHandler(customOAuth2FailureHandler)
-//                );
+        /**
+         * OAuth2 로그인 로직
+         * */
+        http
+                .oauth2Login((oauth) -> oauth
+                        .userInfoEndpoint((userInfo) ->
+                                {userInfo.userService(customOauth2UserService);}
+                        )
+                        .successHandler(customOauth2SuccessHandler)
+                        .failureHandler(customOauth2FailureHandler)
+                );
+
+        /**
+         * jwt 필터 등록
+         * */
+        http.
+                addFilterBefore(new JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
 
-//        /**
-//         * Custom FormLogin Filter And Custom Logout Filter
-//         * */
-//        http.
-//                addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
-//
-//
 
         /**
          * cors 관련 설정

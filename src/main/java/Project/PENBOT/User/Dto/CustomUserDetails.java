@@ -1,4 +1,4 @@
-package Project.PENBOT.User.UserDetails;
+package Project.PENBOT.User.Dto;
 
 import Project.PENBOT.User.Entity.User;
 import org.springframework.security.core.GrantedAuthority;
