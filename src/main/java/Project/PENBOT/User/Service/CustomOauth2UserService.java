@@ -62,7 +62,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
     private CustomUserDetails registerNewUser(OAuth2User oAuth2User, JoinTempUserDTO dto) {
 
-        User savedUser = joinService.JoinUser(dto);
+        User savedUser = joinService.JoinTempUser(dto);
 
         return new CustomUserDetails(savedUser, oAuth2User.getAttributes());
     }
