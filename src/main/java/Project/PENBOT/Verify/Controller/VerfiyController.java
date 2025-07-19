@@ -21,7 +21,7 @@ public class VerfiyController {
 
     @PostMapping("/sendcode")
     private ResponseEntity<SmsResponseDto> sendAuthCode(@RequestBody SmsRequestDto request) {
-        String toPhone = request.getToPhone();
+        String toPhone = request.getPhone();
         if( verifyService.sendAuthCodeAndSave(toPhone)){
             return ResponseEntity.ok(
                     new SmsResponseDto(true, "인증번호가 성공적으로 전송되었습니다.")

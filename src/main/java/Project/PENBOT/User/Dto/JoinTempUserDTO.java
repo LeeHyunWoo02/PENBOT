@@ -1,9 +1,11 @@
 package Project.PENBOT.User.Dto;
 
 import lombok.Getter;
+import lombok.Setter;
 
 
 @Getter
+@Setter
 public class JoinTempUserDTO {
 
     private String name;
