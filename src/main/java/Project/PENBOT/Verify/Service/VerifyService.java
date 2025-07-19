@@ -23,12 +23,16 @@ public class VerifyService {
     /**
      * 통합 처리 메소드
      * */
-    public void sendAuthCodeAndSave(String phone) {
-        String code = generateCode();
-
-        saveAuthCode(phone, code);
-
-        sendSMS(phone, code);
+    public boolean sendAuthCodeAndSave(String phone) {
+        try{
+            String code = generateCode();
+            saveAuthCode(phone, code);
+            sendSMS(phone, code);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false; // 예외 발생 시 false 반환
+        }
+        return true;
     }
 
     /**
