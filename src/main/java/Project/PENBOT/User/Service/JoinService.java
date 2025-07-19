@@ -3,20 +3,21 @@ package Project.PENBOT.User.Service;
 import Project.PENBOT.User.Converter.UserConverter;
 import Project.PENBOT.User.Dto.JoinTempUserDTO;
 import Project.PENBOT.User.Dto.JoinUserReuqestDTO;
+import Project.PENBOT.User.Entity.Role;
 import Project.PENBOT.User.Entity.User;
 import Project.PENBOT.User.Repository.UserRepository;
-import Project.PENBOT.User.Util.PasswordUtil;
 import jakarta.transaction.Transactional;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class JoinService {
     private final UserRepository userRepository;
-    private final PasswordUtil passwordUtil;
+    private final BCryptPasswordEncoder passwordEncoder;
 
-    public JoinService(UserRepository userRepository, PasswordUtil passwordUtil) {
+    public JoinService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
-        this.passwordUtil = passwordUtil;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -35,12 +36,18 @@ public class JoinService {
     @Transactional
     public User UpdateUser(JoinUserReuqestDTO dto){
         String email = dto.getEmail();
-        String password = dto.getPasword();
+        String password = dto.getPassword();
 
         User user = userRepository.findByEmail(email);
-        if(user != null && passwordUtil.matchesPassword(password,user.getPassword())){
-            user.setRole(dto.getRole());
-            user.setPassword(passwordUtil.encodePassword(password));
+        try{
+            if(user != null){
+                user.setPassword(passwordEncoder.encode(password));
+                user.setRole(Role.GUEST);
+            }
+        } catch (NullPointerException e){
+            throw new IllegalArgumentException("User not found or password mismatch");
+        } catch (IllegalArgumentException e){
+            throw new IllegalArgumentException("Invalid password format");
         }
         return userRepository.save(user);
     }

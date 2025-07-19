@@ -1,7 +1,10 @@
 package Project.PENBOT.User.Dto;
 
-import Project.PENBOT.User.Entity.Role;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class JoinResponseDTO {
     private final boolean success;
     private final String message;
