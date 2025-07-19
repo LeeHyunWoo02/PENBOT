@@ -28,6 +28,7 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.3'  // jwt 토큰
 	implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'  // jwt 토큰
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3' // jwt 토큰
+	implementation 'net.nurigo:sdk:4.3.0' // coolSMS API
 	implementation 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	runtimeOnly 'com.mysql:mysql-connector-j'
