@@ -1,11 +1,10 @@
 package Project.PENBOT.User.Dto;
 
-import Project.PENBOT.User.Entity.Role;
 import lombok.Getter;
 
 
 @Getter
-public class JoinUserDTO {
+public class JoinTempUserDTO {
 
     private String name;
     private String password;
@@ -15,8 +14,8 @@ public class JoinUserDTO {
     private String provider;
     private String prociderId;
 
-    public JoinUserDTO(String name, String password, String phone,
-                       String email, String role, String provider, String prociderId) {
+    public JoinTempUserDTO(String name, String password, String phone,
+                           String email, String role, String provider, String prociderId) {
         this.name = name;
         this.password = password;
         this.phone = phone;

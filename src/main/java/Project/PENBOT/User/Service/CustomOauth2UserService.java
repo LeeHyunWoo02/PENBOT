@@ -1,6 +1,6 @@
 package Project.PENBOT.User.Service;
 
-import Project.PENBOT.User.Dto.JoinUserDTO;
+import Project.PENBOT.User.Dto.JoinTempUserDTO;
 import Project.PENBOT.User.Entity.Role;
 import Project.PENBOT.User.Entity.User;
 import Project.PENBOT.User.Repository.OAuth2UserInfo;
@@ -48,7 +48,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         String role = Role.TEMP.name();
         String name = oAuth2UserInfo.getName();
 
-        JoinUserDTO dto = new JoinUserDTO(name, null, mobile, email,
+        JoinTempUserDTO dto = new JoinTempUserDTO(name, null, mobile, email,
                 role, userInfoProvider, userInfoId);
 
         User savedUser = userRepository.findByEmail(email);
@@ -60,7 +60,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         }
     }
 
-    private CustomUserDetails registerNewUser(OAuth2User oAuth2User, JoinUserDTO dto) {
+    private CustomUserDetails registerNewUser(OAuth2User oAuth2User, JoinTempUserDTO dto) {
 
         User savedUser = joinService.JoinUser(dto);
 

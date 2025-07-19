@@ -1,7 +1,7 @@
 package Project.PENBOT.User.Service;
 
 import Project.PENBOT.User.Converter.UserConverter;
-import Project.PENBOT.User.Dto.JoinUserDTO;
+import Project.PENBOT.User.Dto.JoinTempUserDTO;
 import Project.PENBOT.User.Entity.User;
 import Project.PENBOT.User.Repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -16,7 +16,7 @@ public class JoinService {
     }
 
     @Transactional
-    public User JoinUser(JoinUserDTO dto){
+    public User JoinUser(JoinTempUserDTO dto){
         String email = dto.getEmail();
 
         if(userRepository.existsByEmail(email)){
