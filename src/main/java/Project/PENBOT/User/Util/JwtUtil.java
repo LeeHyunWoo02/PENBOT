@@ -12,7 +12,7 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
-    public static final long ACCESS_TOKEN_EXPIRED = 60 * 60 * 1000L;
+    public static final long ACCESS_TOKEN_EXPIRED = 24 * 60 * 60 * 1000L;
 
     private final SecretKey accesskey;
 
