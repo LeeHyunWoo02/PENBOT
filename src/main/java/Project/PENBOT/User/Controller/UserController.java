@@ -8,6 +8,8 @@ import Project.PENBOT.User.Entity.User;
 import Project.PENBOT.User.Service.JoinService;
 import Project.PENBOT.User.Service.UserService;
 import Project.PENBOT.User.Util.JwtUtil;
+import io.jsonwebtoken.Claims;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,9 +29,13 @@ public class UserController {
 
 
     @PostMapping("/update")
-    private ResponseEntity<JoinResponseDTO> UpdateUser(@RequestBody JoinUserReuqestDTO requestDTO){
-        User user = joinService.UpdateUser(requestDTO);
-        String newToken = jwtUtil.createAccessToken(requestDTO.getEmail(), String.valueOf(user.getRole()));
+    private ResponseEntity<JoinResponseDTO> UpdateUser(@RequestBody JoinUserReuqestDTO requestDTO,
+                                                       @RequestHeader(HttpHeaders.AUTHORIZATION) String auth){
+        User user = joinService.UpdateUser(requestDTO, auth);
+        String token = auth.replace("Bearer ", "");
+        Claims claims = jwtUtil.getClaims(token);
+        int userId = claims.get("userId", Integer.class);
+        String newToken = jwtUtil.createAccessToken(userId, String.valueOf(user.getRole()));
         JoinResponseDTO responseDTO = new JoinResponseDTO(true, "User updated successfully",
                 newToken);
         return ResponseEntity.ok(responseDTO);
