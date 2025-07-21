@@ -1,7 +1,11 @@
 package Project.PENBOT.User.Entity;
 
+import Project.PENBOT.Booking.Entity.Booking;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -33,5 +37,13 @@ public class User {
     private String provider;
 
     private String providerId;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Booking> bookings = new HashSet<>();
+
+    public void addBooking(Booking booking) {
+        bookings.add(booking);
+        booking.setUser(this);
+    }
 
 }
