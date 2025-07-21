@@ -1,4 +1,4 @@
-package Project.PENBOT.Entity;
+package Project.PENBOT.Payment.Entity;
 
 public enum Method {
     CASH,

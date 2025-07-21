@@ -1,5 +1,6 @@
-package Project.PENBOT.Entity;
+package Project.PENBOT.Payment.Entity;
 
+import Project.PENBOT.Booking.Entity.Booking;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

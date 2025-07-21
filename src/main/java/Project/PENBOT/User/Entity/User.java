@@ -1,12 +1,14 @@
-package Project.PENBOT.Entity;
+package Project.PENBOT.User.Entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
 
     @Id
@@ -16,7 +18,10 @@ public class User {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column
+    private String password;
+
+    @Column(nullable = false, unique = true)
     private String phone;
 
     @Column(nullable = false)
@@ -26,5 +31,7 @@ public class User {
     private Role role;
 
     private String provider;
+
+    private String providerId;
 
 }

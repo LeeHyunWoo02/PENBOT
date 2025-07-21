@@ -1,4 +1,4 @@
-package Project.PENBOT.Entity;
+package Project.PENBOT.ChatAPI.Entity;
 
 public enum Sender {
     USER,
