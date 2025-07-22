@@ -11,6 +11,7 @@ import io.jsonwebtoken.Claims;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 public class BookingService {
@@ -48,5 +49,18 @@ public class BookingService {
         } catch (NullPointerException e) {
             throw new RuntimeException("존재하지 않는 사용자입니다.");
         }
+    }
+
+    public boolean isAvailable(BookingRequestDTO requestDTO) {
+        LocalDate start = requestDTO.getStartDate();
+        LocalDate end = requestDTO.getEndDate();
+        // 이미 예약된 데이터 있는지 체크
+        boolean isDuplicated = bookingRepository
+                .existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(start, end);
+
+        if(isDuplicated) {
+            throw new RuntimeException("이미 해당 기간에 예약이 존재합니다.");
+        }
+        return true;
     }
 }
