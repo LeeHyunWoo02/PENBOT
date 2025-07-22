@@ -42,19 +42,19 @@ public class JoinService {
         String token = auth.replace("Bearer ", "");
         Claims claims = jwtUtil.getClaims(token);
         int userId = claims.get("userId", Integer.class);
+        System.out.println("User ID from token: " + userId);
         String password = dto.getPassword();
 
-        User user = userRepository.findById(userId);
         try{
-            if(user != null){
-                user.setPassword(passwordEncoder.encode(password));
-                user.setRole(Role.GUEST);
-            }
+            User user = userRepository.findById(userId);
+            user.setPassword(passwordEncoder.encode(password));
+            user.setRole(Role.GUEST);
+            return userRepository.save(user);
         } catch (NullPointerException e){
             throw new IllegalArgumentException("User not found or password mismatch");
         } catch (IllegalArgumentException e){
             throw new IllegalArgumentException("Invalid password format");
         }
-        return userRepository.save(user);
+
     }
 }

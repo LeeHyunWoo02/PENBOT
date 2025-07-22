@@ -34,5 +34,12 @@ public class ChatLog {
     private String message;
 
     @Column(nullable = false)
-    private LocalDateTime dateTime = LocalDateTime.now();
+    private LocalDateTime dateTime;
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.dateTime == null) {
+            this.dateTime = LocalDateTime.now();
+        }
+    }
 }
