@@ -2,6 +2,7 @@ package Project.PENBOT.Booking.Serivce;
 
 import Project.PENBOT.Booking.Converter.BookingConverter;
 import Project.PENBOT.Booking.Dto.BookingRequestDTO;
+import Project.PENBOT.Booking.Dto.MyBookingResponseDTO;
 import Project.PENBOT.Booking.Entity.Booking;
 import Project.PENBOT.Booking.Repository.BookingRepository;
 import Project.PENBOT.User.Entity.User;
@@ -11,7 +12,6 @@ import io.jsonwebtoken.Claims;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Service
 public class BookingService {
@@ -20,7 +20,7 @@ public class BookingService {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
 
-    public BookingService(BookingRepository bookingRepository, UserRepository userRepository, JwtUtil jwtUtil) {
+    public BookingService(BookingRepository bookingRepository, UserRepository userRepository,JwtUtil jwtUtil) {
         this.bookingRepository = bookingRepository;
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
@@ -28,9 +28,7 @@ public class BookingService {
 
     public Booking createBooking(BookingRequestDTO requestDTO, String auth) {
 
-        String token = auth.replace("Bearer ", "");
-        Claims claims = jwtUtil.getClaims(token);
-        int userId = claims.get("userId", Integer.class);
+        int userId = getUserId(auth);
 
         LocalDate startDate = requestDTO.getStartDate();
         LocalDate endDate = requestDTO.getEndDate();
@@ -51,7 +49,7 @@ public class BookingService {
         }
     }
 
-    public boolean isAvailable(BookingRequestDTO requestDTO) {
+    public void isAvailable(BookingRequestDTO requestDTO) {
         LocalDate start = requestDTO.getStartDate();
         LocalDate end = requestDTO.getEndDate();
         // 이미 예약된 데이터 있는지 체크
@@ -61,6 +59,22 @@ public class BookingService {
         if(isDuplicated) {
             throw new RuntimeException("이미 해당 기간에 예약이 존재합니다.");
         }
-        return true;
+    }
+
+    public MyBookingResponseDTO getAllMyBooking(String auth){
+        int userId = getUserId(auth);
+        try{
+            User user = userRepository.findById(userId);
+            return BookingConverter.toDto(user);
+        } catch (NullPointerException e) {
+            throw new RuntimeException("존재하지 않는 사용자입니다.");
+        }
+    }
+
+    private int getUserId(String auth) {
+        String token = auth.replace("Bearer ", "");
+        Claims claims = jwtUtil.getClaims(token);
+        int userId = claims.get("userId", Integer.class);
+        return userId;
     }
 }

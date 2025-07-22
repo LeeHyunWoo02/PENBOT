@@ -3,6 +3,7 @@ package Project.PENBOT.Booking.Controller;
 import Project.PENBOT.Booking.Dto.BookingAvailableResponseDTO;
 import Project.PENBOT.Booking.Dto.BookingRequestDTO;
 import Project.PENBOT.Booking.Dto.BookingResponseDTO;
+import Project.PENBOT.Booking.Dto.MyBookingResponseDTO;
 import Project.PENBOT.Booking.Entity.Booking;
 import Project.PENBOT.Booking.Serivce.BookingService;
 import org.springframework.http.HttpHeaders;
@@ -42,6 +43,19 @@ public class BookingController {
             );
         } catch (Exception e){
             return ResponseEntity.badRequest().body(new BookingAvailableResponseDTO(false, e.getMessage()));
+        }
+    }
+
+    @GetMapping("/my")
+    public ResponseEntity<MyBookingResponseDTO> getMyBookings(@RequestHeader(HttpHeaders.AUTHORIZATION) String auth){
+        try {
+            MyBookingResponseDTO responseDTO = bookingService.getAllMyBooking(auth);
+            responseDTO.setSuccess(true);
+            responseDTO.setMessage("예약 정보를 성공적으로 가져왔습니다.");
+            return ResponseEntity.ok(responseDTO);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MyBookingResponseDTO(false, null
+                    ,"예약 정보를 가져오는 데 실패했습니다: " + e.getMessage()));
         }
     }
 }
