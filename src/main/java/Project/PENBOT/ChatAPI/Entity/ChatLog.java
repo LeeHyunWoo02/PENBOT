@@ -18,11 +18,11 @@ public class ChatLog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "booking_id")
     private Booking booking;
 
-    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -34,5 +34,12 @@ public class ChatLog {
     private String message;
 
     @Column(nullable = false)
-    private LocalDateTime dateTime = LocalDateTime.now();
+    private LocalDateTime dateTime;
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.dateTime == null) {
+            this.dateTime = LocalDateTime.now();
+        }
+    }
 }

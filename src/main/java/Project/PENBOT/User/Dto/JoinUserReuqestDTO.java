@@ -7,5 +7,4 @@ import lombok.Setter;
 @Setter
 public class JoinUserReuqestDTO {
     private String password;
-    private String email;
 }

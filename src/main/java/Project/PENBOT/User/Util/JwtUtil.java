@@ -12,7 +12,7 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
-    public static final long ACCESS_TOKEN_EXPIRED = 60 * 60 * 1000L;
+    public static final long ACCESS_TOKEN_EXPIRED = 24 * 60 * 60 * 1000L;
 
     private final SecretKey accesskey;
 
@@ -20,7 +20,7 @@ public class JwtUtil {
         this.accesskey = new SecretKeySpec(accessSecret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
     }
 
-    public String createAccessToken(String userId, String role) {
+    public String createAccessToken(int userId, String role) {
         return Jwts.builder()
                 .claim("category", "access")
                 .claim("userId", userId)

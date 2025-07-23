@@ -34,10 +34,10 @@ public class JwtFilter extends OncePerRequestFilter {
 
         accessToken = accessToken.replace("Bearer ", "");
         Claims claims;
-        String userId;
+        int userId;
         try{
             claims = jwtUtil.getClaims(accessToken);
-            userId = claims.get("userId", String.class);
+            userId = claims.get("userId", Integer.class);
         } catch (ExpiredJwtException e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Access token has expired.");
@@ -51,7 +51,7 @@ public class JwtFilter extends OncePerRequestFilter {
         /**
          * Security 인증 객체를 생성하여 SecurityContextHolder에 저장
          * */
-        if(userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if(SecurityContextHolder.getContext().getAuthentication() == null) {
             UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userId, null,
                     Collections.emptyList());
             SecurityContextHolder.getContext().setAuthentication(token);

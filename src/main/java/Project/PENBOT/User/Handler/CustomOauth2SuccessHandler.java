@@ -27,7 +27,7 @@ public class CustomOauth2SuccessHandler implements AuthenticationSuccessHandler 
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication auth)
             throws IOException, ServletException {
         CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
-        String loginId = userDetails.getUsername();
+        int loginId = userDetails.getId();
         String role = userDetails.getAuthorities().iterator().next().getAuthority();
         String accessToken = jwtUtil.createAccessToken(loginId,role);
 
