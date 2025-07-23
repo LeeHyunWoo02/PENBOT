@@ -1,5 +1,6 @@
 package Project.PENBOT.User.Service;
 
+import Project.PENBOT.CustomException.UserNotFoundException;
 import Project.PENBOT.User.Converter.UserConverter;
 import Project.PENBOT.User.Dto.JoinTempUserDTO;
 import Project.PENBOT.User.Dto.JoinUserReuqestDTO;
@@ -42,7 +43,6 @@ public class JoinService {
         String token = auth.replace("Bearer ", "");
         Claims claims = jwtUtil.getClaims(token);
         int userId = claims.get("userId", Integer.class);
-        System.out.println("User ID from token: " + userId);
         String password = dto.getPassword();
 
         try{
@@ -50,8 +50,8 @@ public class JoinService {
             user.setPassword(passwordEncoder.encode(password));
             user.setRole(Role.GUEST);
             return userRepository.save(user);
-        } catch (NullPointerException e){
-            throw new IllegalArgumentException("User not found or password mismatch");
+        } catch (UserNotFoundException e){
+            throw new UserNotFoundException();
         } catch (IllegalArgumentException e){
             throw new IllegalArgumentException("Invalid password format");
         }

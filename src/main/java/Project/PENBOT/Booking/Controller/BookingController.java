@@ -6,7 +6,11 @@ import Project.PENBOT.Booking.Dto.BookingResponseDTO;
 import Project.PENBOT.Booking.Dto.MyBookingResponseDTO;
 import Project.PENBOT.Booking.Entity.Booking;
 import Project.PENBOT.Booking.Serivce.BookingService;
+import Project.PENBOT.CustomException.BookingNotFoundException;
+import Project.PENBOT.CustomException.ForbiddenException;
+import Project.PENBOT.CustomException.UserNotFoundException;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -84,4 +88,18 @@ public class BookingController {
         }
     }
 
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<BookingResponseDTO> handleForbidden(ForbiddenException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new BookingResponseDTO(false, 0, ex.getMessage()));
+    }
+
+    @ExceptionHandler(BookingNotFoundException.class)
+    public ResponseEntity<BookingResponseDTO> handleBookingNotFound(BookingNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new BookingResponseDTO(false, 0, ex.getMessage()));
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<BookingResponseDTO> handleUserNotFound(UserNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new BookingResponseDTO(false, 0, ex.getMessage()));
+    }
 }

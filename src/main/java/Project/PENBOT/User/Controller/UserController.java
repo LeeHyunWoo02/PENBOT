@@ -1,15 +1,14 @@
 package Project.PENBOT.User.Controller;
 
-import Project.PENBOT.User.Dto.JoinResponseDTO;
-import Project.PENBOT.User.Dto.JoinUserReuqestDTO;
-import Project.PENBOT.User.Dto.UserSearchRequestDTO;
-import Project.PENBOT.User.Dto.UserSearchResponseDTO;
+import Project.PENBOT.CustomException.UserNotFoundException;
+import Project.PENBOT.User.Dto.*;
 import Project.PENBOT.User.Entity.User;
 import Project.PENBOT.User.Service.JoinService;
 import Project.PENBOT.User.Service.UserService;
 import Project.PENBOT.User.Util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,8 +41,13 @@ public class UserController {
     }
 
     @GetMapping("/search")
-    private ResponseEntity<UserSearchResponseDTO> SearchUser(@RequestBody UserSearchRequestDTO requestDTO) {
-        UserSearchResponseDTO responseDTO = userService.searchUser(requestDTO.getEmail());
+    private ResponseEntity<UserSearchResponseDTO> SearchUser(@RequestHeader(HttpHeaders.AUTHORIZATION) String auth) {
+        UserSearchResponseDTO responseDTO = userService.searchUser(auth);
         return ResponseEntity.ok(responseDTO);
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<UserResponseDTO> handleUserNotFound(UserNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new UserResponseDTO(false,ex.getMessage()));
     }
 }

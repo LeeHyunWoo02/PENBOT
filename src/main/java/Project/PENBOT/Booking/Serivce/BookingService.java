@@ -1,10 +1,13 @@
 package Project.PENBOT.Booking.Serivce;
 
 import Project.PENBOT.Booking.Converter.BookingConverter;
+import Project.PENBOT.CustomException.BookingNotFoundException;
+import Project.PENBOT.CustomException.ForbiddenException;
 import Project.PENBOT.Booking.Dto.BookingRequestDTO;
 import Project.PENBOT.Booking.Dto.MyBookingResponseDTO;
 import Project.PENBOT.Booking.Entity.Booking;
 import Project.PENBOT.Booking.Repository.BookingRepository;
+import Project.PENBOT.CustomException.UserNotFoundException;
 import Project.PENBOT.User.Entity.User;
 import Project.PENBOT.User.Repository.UserRepository;
 import Project.PENBOT.User.Util.JwtUtil;
@@ -78,16 +81,16 @@ public class BookingService {
         int userId = getUserId(auth);
 
         if (!userRepository.existsById(userId)) {
-            throw new RuntimeException("존재하지 않는 사용자입니다.");
+            throw new UserNotFoundException();
         }
 
         Optional<Booking> bookingOptional = bookingRepository.findById(bookingId);
         if (bookingOptional.isEmpty()) {
-            throw new RuntimeException("존재하지 않는 예약입니다.");
+            throw new BookingNotFoundException();
         }
 
         if (bookingOptional.get().getUser().getId() != userId) {
-            throw new RuntimeException("해당 예약에 대한 접근 권한이 없습니다.");
+            throw new ForbiddenException();
         }
 
         return BookingConverter.toMyDto(bookingOptional.get());
@@ -101,7 +104,7 @@ public class BookingService {
         }
         Booking booking = bookingOptional.get();
         if(booking.getUser().getId() != getUserId(auth)) {
-            throw new RuntimeException("해당 예약에 대한 접근 권한이 없습니다.");
+            throw new ForbiddenException();
         }
 
         bookingRepository.delete(booking);
