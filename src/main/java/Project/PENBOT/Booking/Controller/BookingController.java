@@ -46,10 +46,23 @@ public class BookingController {
         }
     }
 
-    @GetMapping("/my")
+    @GetMapping("/myall")
     public ResponseEntity<MyBookingResponseDTO> getMyBookings(@RequestHeader(HttpHeaders.AUTHORIZATION) String auth){
         try {
             MyBookingResponseDTO responseDTO = bookingService.getAllMyBooking(auth);
+            responseDTO.setSuccess(true);
+            responseDTO.setMessage("예약 정보를 성공적으로 가져왔습니다.");
+            return ResponseEntity.ok(responseDTO);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MyBookingResponseDTO(false, null
+                    ,"예약 정보를 가져오는 데 실패했습니다: " + e.getMessage()));
+        }
+    }
+    @GetMapping("/{bookingId}")
+    public ResponseEntity<MyBookingResponseDTO> getMyBooking(@RequestHeader(HttpHeaders.AUTHORIZATION) String auth,
+                                                             @PathVariable int bookingId) {
+        try{
+            MyBookingResponseDTO responseDTO = bookingService.getMyBooking(auth,bookingId);
             responseDTO.setSuccess(true);
             responseDTO.setMessage("예약 정보를 성공적으로 가져왔습니다.");
             return ResponseEntity.ok(responseDTO);

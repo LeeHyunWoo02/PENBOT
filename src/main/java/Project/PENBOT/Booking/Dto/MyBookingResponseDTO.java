@@ -1,6 +1,5 @@
 package Project.PENBOT.Booking.Dto;
 
-import Project.PENBOT.Booking.Entity.Booking;
 import jakarta.annotation.Nullable;
 import lombok.Builder;
 import lombok.Getter;

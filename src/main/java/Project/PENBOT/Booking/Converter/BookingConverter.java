@@ -8,6 +8,7 @@ import Project.PENBOT.Booking.Entity.Booking;
 import Project.PENBOT.User.Entity.User;
 
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.Set;
 
 public class BookingConverter {
@@ -21,7 +22,7 @@ public class BookingConverter {
                 .build();
     }
 
-    public static MyBookingResponseDTO toDto(User user) {
+    public static MyBookingResponseDTO toAllDto(User user) {
         Set<Booking> bookings = user.getBookings();
         HashMap<String, BookingSimpleDTO> myBookings = new HashMap<>();
         for (Booking booking : bookings) {
@@ -35,6 +36,28 @@ public class BookingConverter {
                             .build()
             );
         }
+        return MyBookingResponseDTO.builder()
+                .myBookings(myBookings)
+                .build();
+
+    }
+
+    public static MyBookingResponseDTO toMyDto(Booking booking) {
+
+        HashMap<String, BookingSimpleDTO> myBookings = new HashMap<>();
+        myBookings.put(
+                String.valueOf(booking.getUser().getId()),
+                BookingSimpleDTO.builder()
+                        .startDate(booking.getStartDate().toString())
+                        .endDate(booking.getEndDate().toString())
+                        .status(booking.getStatus())
+                        .headcount(booking.getHeadcount())
+                        .name(booking.getUser().getName())
+                        .phone(booking.getUser().getPhone())
+                        .status(booking.getStatus())
+                        .build()
+        );
+
         return MyBookingResponseDTO.builder()
                 .myBookings(myBookings)
                 .build();

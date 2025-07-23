@@ -12,6 +12,7 @@ import io.jsonwebtoken.Claims;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 @Service
 public class BookingService {
@@ -65,9 +66,22 @@ public class BookingService {
         int userId = getUserId(auth);
         try{
             User user = userRepository.findById(userId);
-            return BookingConverter.toDto(user);
+            return BookingConverter.toAllDto(user);
         } catch (NullPointerException e) {
             throw new RuntimeException("존재하지 않는 사용자입니다.");
+        }
+    }
+
+    public MyBookingResponseDTO getMyBooking(String auth, int bookingId) {
+        try{
+            int userId = getUserId(auth);
+            userRepository.existsById(userId);
+            Booking booking = bookingRepository.findById(bookingId);
+            return BookingConverter.toMyDto(booking);
+        } catch (NullPointerException e) {
+            throw new RuntimeException("존재하지 않는 사용자입니다.");
+        } catch (RuntimeException e) {
+            throw new RuntimeException("존재하지 않는 예약입니다.");
         }
     }
 
