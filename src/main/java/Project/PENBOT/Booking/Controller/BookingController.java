@@ -58,6 +58,7 @@ public class BookingController {
                     ,"예약 정보를 가져오는 데 실패했습니다: " + e.getMessage()));
         }
     }
+
     @GetMapping("/{bookingId}")
     public ResponseEntity<MyBookingResponseDTO> getMyBooking(@RequestHeader(HttpHeaders.AUTHORIZATION) String auth,
                                                              @PathVariable int bookingId) {
@@ -71,4 +72,16 @@ public class BookingController {
                     ,"예약 정보를 가져오는 데 실패했습니다: " + e.getMessage()));
         }
     }
+
+    @DeleteMapping("/{bookingId}/delete")
+    public ResponseEntity<BookingResponseDTO> deleteBooking(@RequestHeader(HttpHeaders.AUTHORIZATION) String auth,
+                                                             @PathVariable int bookingId) {
+        try{
+            bookingService.deleteBooking(auth, bookingId);
+            return ResponseEntity.ok(new BookingResponseDTO(true, bookingId, "예약이 성공적으로 삭제되었습니다."));
+        } catch (Exception e){
+            return ResponseEntity.badRequest().body(new BookingResponseDTO(false, bookingId, e.getMessage()));
+        }
+    }
+
 }

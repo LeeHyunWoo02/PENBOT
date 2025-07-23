@@ -9,6 +9,7 @@ import Project.PENBOT.User.Entity.User;
 import Project.PENBOT.User.Repository.UserRepository;
 import Project.PENBOT.User.Util.JwtUtil;
 import io.jsonwebtoken.Claims;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -27,6 +28,7 @@ public class BookingService {
         this.jwtUtil = jwtUtil;
     }
 
+    @Transactional
     public Booking createBooking(BookingRequestDTO requestDTO, String auth) {
 
         int userId = getUserId(auth);
@@ -73,16 +75,36 @@ public class BookingService {
     }
 
     public MyBookingResponseDTO getMyBooking(String auth, int bookingId) {
-        try{
-            int userId = getUserId(auth);
-            userRepository.existsById(userId);
-            Booking booking = bookingRepository.findById(bookingId);
-            return BookingConverter.toMyDto(booking);
-        } catch (NullPointerException e) {
+        int userId = getUserId(auth);
+
+        if (!userRepository.existsById(userId)) {
             throw new RuntimeException("존재하지 않는 사용자입니다.");
-        } catch (RuntimeException e) {
+        }
+
+        Optional<Booking> bookingOptional = bookingRepository.findById(bookingId);
+        if (bookingOptional.isEmpty()) {
             throw new RuntimeException("존재하지 않는 예약입니다.");
         }
+
+        if (bookingOptional.get().getUser().getId() != userId) {
+            throw new RuntimeException("해당 예약에 대한 접근 권한이 없습니다.");
+        }
+
+        return BookingConverter.toMyDto(bookingOptional.get());
+    }
+
+    @Transactional
+    public void deleteBooking(String auth, int bookingId){
+        Optional<Booking> bookingOptional = bookingRepository.findById(bookingId);
+        if(bookingOptional.isEmpty()) {
+            throw new RuntimeException("존재하지 않는 예약입니다.");
+        }
+        Booking booking = bookingOptional.get();
+        if(booking.getUser().getId() != getUserId(auth)) {
+            throw new RuntimeException("해당 예약에 대한 접근 권한이 없습니다.");
+        }
+
+        bookingRepository.delete(booking);
     }
 
     private int getUserId(String auth) {
