@@ -1,24 +1,22 @@
 package Project.PENBOT.Verify.Service;
 
+import Project.PENBOT.ChatAPI.Service.RedisChatService;
 import Project.PENBOT.Verify.Util.CoolSMSUtil;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import lombok.AllArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 @Service
+@AllArgsConstructor
 public class VerifyService {
 
-    private final StringRedisTemplate redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
+    private final RedisChatService redisChatService;
     private final CoolSMSUtil coolsms;
 
-    private static final long AUTH_CODE_EXP_MINUTES = 5;
 
-    public VerifyService(StringRedisTemplate redisTemplate, CoolSMSUtil coolsms) {
-        this.redisTemplate = redisTemplate;
-        this.coolsms = coolsms;
-    }
 
     /**
      * 통합 처리 메소드
@@ -60,7 +58,7 @@ public class VerifyService {
      * */
     public void saveAuthCode(String phone, String code){
         String key = buildKey(phone);
-        redisTemplate.opsForValue().set(key, code, AUTH_CODE_EXP_MINUTES, TimeUnit.MINUTES); // 5분 동안 유효
+        redisChatService.addAuthCode(key,code); // 5분 동안 유효
     }
 
     /**
@@ -68,7 +66,7 @@ public class VerifyService {
      * */
     public boolean verifyCode(String phone, String code){
         String key = buildKey(phone);
-        String savedCode = redisTemplate.opsForValue().get(key);
+        String savedCode = redisChatService.getAuthCode(key);
 
         if (savedCode != null && savedCode.equals(code)){
             redisTemplate.delete(key);
@@ -80,6 +78,4 @@ public class VerifyService {
     private String buildKey(String phone) {
         return "sms:auth:" + phone;
     }
-
-
 }
