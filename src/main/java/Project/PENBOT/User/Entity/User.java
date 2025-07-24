@@ -42,10 +42,10 @@ public class User {
     private String providerId;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Booking> bookings = new HashSet<>();
+    private Set<Booking> bookings;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ChatLog> chatlogs = new ArrayList<>();
+    private List<ChatLog> chatlogs;
 
     public void addChatLog(ChatLog chatLog) {
         chatlogs.add(chatLog);

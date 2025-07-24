@@ -1,9 +1,7 @@
 package Project.PENBOT.ChatAPI.Dto;
 
-import Project.PENBOT.ChatAPI.Entity.Sender;
+import Project.PENBOT.ChatAPI.Entity.Role;
 import lombok.*;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -11,6 +9,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class ChatMessageDTO {
-    private Sender sender;
+    private Role role;
     private String message;
 }

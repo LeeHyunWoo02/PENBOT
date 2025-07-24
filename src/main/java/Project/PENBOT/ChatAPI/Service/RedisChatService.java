@@ -38,7 +38,8 @@ public class RedisChatService {
     }
 
     // 최근 n개 메시지 조회 (JSON → ChatMessageDTO 역직렬화)
-    public List<ChatMessageDTO> getRecentMessages(String key) {
+    public List<ChatMessageDTO> getRecentMessages(String auth) {
+        String key = getKey(auth);
         List<String> jsonList = redisTemplate.opsForList().range(key, 0, -1);
         List<ChatMessageDTO> result = new ArrayList<>();
         if (jsonList != null) {

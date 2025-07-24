@@ -2,7 +2,7 @@ package Project.PENBOT.ChatAPI.Controller;
 import Project.PENBOT.ChatAPI.Dto.ChatMessageDTO;
 import Project.PENBOT.ChatAPI.Dto.QueryRequestDTO;
 import Project.PENBOT.ChatAPI.Dto.QueryResponseDTO;
-import Project.PENBOT.ChatAPI.Entity.Sender;
+import Project.PENBOT.ChatAPI.Entity.Role;
 import Project.PENBOT.ChatAPI.Service.ChatLogService;
 import Project.PENBOT.ChatAPI.Service.GeminiService;
 import Project.PENBOT.ChatAPI.Service.RedisChatService;
@@ -29,15 +29,15 @@ public class GeminiController {
                                                       @RequestHeader(HttpHeaders.AUTHORIZATION) String auth){
         // ChatLog에 질문 저장 && Redis에 질문 저장
         chatLogService.saveUserChat(auth, requestDTO);
-        ChatMessageDTO chatMessageDTO= new ChatMessageDTO(Sender.USER, requestDTO.getText());
+        ChatMessageDTO chatMessageDTO= new ChatMessageDTO(Role.USER, requestDTO.getText());
         redisChatService.addChatMessage(auth, chatMessageDTO);
 
         // Gemini API 호출
-        String answer = geminiService.getCompletion(requestDTO.getText());
+        String answer = geminiService.getCompletion(requestDTO.getText(), auth);
 
         // ChatLog에 답변 저장 && Redis에 답변 저장
         chatLogService.saveBotChat(auth, answer);
-        ChatMessageDTO chatMessageDTO2 = new ChatMessageDTO(Sender.BOT, answer);
+        ChatMessageDTO chatMessageDTO2 = new ChatMessageDTO(Role.MODEL, answer);
         redisChatService.addChatMessage(auth, chatMessageDTO2);
         return ResponseEntity.ok(new QueryResponseDTO(answer));
     }
