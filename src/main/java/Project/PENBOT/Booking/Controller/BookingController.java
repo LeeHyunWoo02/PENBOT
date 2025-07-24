@@ -6,6 +6,7 @@ import Project.PENBOT.Booking.Dto.BookingResponseDTO;
 import Project.PENBOT.Booking.Dto.MyBookingResponseDTO;
 import Project.PENBOT.Booking.Entity.Booking;
 import Project.PENBOT.Booking.Serivce.BookingService;
+import Project.PENBOT.ChatAPI.Service.ChatLogService;
 import Project.PENBOT.CustomException.BookingNotFoundException;
 import Project.PENBOT.CustomException.ForbiddenException;
 import Project.PENBOT.CustomException.UserNotFoundException;
@@ -19,9 +20,10 @@ import org.springframework.web.bind.annotation.*;
 public class BookingController {
 
     private final BookingService bookingService;
-
-    public BookingController(BookingService bookingService) {
+    private final ChatLogService chatLogService;
+    public BookingController(BookingService bookingService, ChatLogService chatLogService) {
         this.bookingService = bookingService;
+        this.chatLogService = chatLogService;
     }
 
     @PostMapping("/")
@@ -29,6 +31,7 @@ public class BookingController {
                                                      @RequestHeader(HttpHeaders.AUTHORIZATION) String auth) {
         try{
             Booking booking = bookingService.createBooking(requestDTO, auth);
+            chatLogService.BookingChatSave(booking.getId());
             return ResponseEntity.ok(
                     new BookingResponseDTO(true, booking.getId(), "예약이 성공적으로 생성되었습니다.")
             );
