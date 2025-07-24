@@ -1,10 +1,13 @@
 package Project.PENBOT.User.Entity;
 
 import Project.PENBOT.Booking.Entity.Booking;
+import Project.PENBOT.ChatAPI.Entity.ChatLog;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -41,6 +44,13 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Booking> bookings = new HashSet<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ChatLog> chatlogs = new ArrayList<>();
+
+    public void addChatLog(ChatLog chatLog) {
+        chatlogs.add(chatLog);
+        chatLog.setUser(this);
+    }
     public void addBooking(Booking booking) {
         bookings.add(booking);
         booking.setUser(this);
