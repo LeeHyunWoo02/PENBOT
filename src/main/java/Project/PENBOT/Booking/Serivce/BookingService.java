@@ -58,16 +58,12 @@ public class BookingService {
         }
     }
 
-    public void isAvailable(BookingRequestDTO requestDTO) {
+    public boolean isAvailable(BookingRequestDTO requestDTO) {
         LocalDate start = requestDTO.getStartDate();
         LocalDate end = requestDTO.getEndDate();
         // 이미 예약된 데이터 있는지 체크
-        boolean isDuplicated = bookingRepository
-                .existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(start, end);
+        return !bookingRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(end, start);
 
-        if(isDuplicated) {
-            throw new RuntimeException("이미 해당 기간에 예약이 존재합니다.");
-        }
     }
 
     public MyBookingResponseDTO getAllMyBooking(String auth){

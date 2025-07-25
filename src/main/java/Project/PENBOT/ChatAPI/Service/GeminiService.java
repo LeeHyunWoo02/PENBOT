@@ -29,6 +29,8 @@ public class GeminiService {
         GeminiRequestDTO request = buildGeminiBookingPrompt(context, text);
         GeminiResponseDTO response = geminiInterface.getCompletion(GEMINI_FLASH, request);
 
+
+
         return response.getCandidates()
                 .stream()
                 .findFirst()
