@@ -61,7 +61,8 @@ public class GeminiController {
             try{
                 bookingRequestDTO = objectMapper.readValue(json, BookingRequestDTO.class);
             } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
+                // 예약 관련이 아닌 경우 FAQ 등 자연어만 응답하도록!
+                bookingRequestDTO = null;
             }
         }
 
@@ -71,43 +72,36 @@ public class GeminiController {
         redisChatService.addChatMessage(auth, chatMessageDTO2);
         String responseMsg = answer;
 
-        // 1. 예약 가능 질문(인원 없는 단순 날짜 문의)
+        // 예약 관련(JSON 추출 성공) → 예약/예약
         if (bookingRequestDTO != null
                 && bookingRequestDTO.getStartDate() != null
-                && bookingRequestDTO.getEndDate() != null
-                && bookingRequestDTO.getHeadcount() == 0) {
-            log.info("예약 가능 여부 확인 요청: {}", bookingRequestDTO.getStartDate());
-            boolean isAvailable = bookingService.isAvailable(bookingRequestDTO);
-            log.info("예약 가능 여부: {}", isAvailable);
-            responseMsg = isAvailable
-                    ? String.format("요청하신 기간(%s ~ %s)은 예약이 가능합니다!",
-                    bookingRequestDTO.getStartDate(), bookingRequestDTO.getEndDate())
-                    : String.format("죄송합니다. 요청하신 기간(%s ~ %s)은 이미 예약이 되어 있습니다.",
-                    bookingRequestDTO.getStartDate(), bookingRequestDTO.getEndDate());
-        }
-        // 2. 실제 예약(인원까지 모두 채워진 경우)
-        else if (bookingRequestDTO != null
-                && bookingRequestDTO.getStartDate() != null
-                && bookingRequestDTO.getEndDate() != null
-                && bookingRequestDTO.getHeadcount() > 0) {
-            log.info("예약 요청: {} ~ {}, 인원: {}",
-                    bookingRequestDTO.getStartDate(),
-                    bookingRequestDTO.getEndDate(),
-                    bookingRequestDTO.getHeadcount());
-            if(!bookingService.isAvailable(bookingRequestDTO)) {
-                responseMsg = String.format("죄송합니다. 요청하신 기간(%s ~ %s)은 이미 예약이 되어 있습니다.",
-                        bookingRequestDTO.getStartDate(), bookingRequestDTO.getEndDate());
-                return ResponseEntity.badRequest().body(new QueryResponseDTO(responseMsg));
-            } else {
-                log.info("예약 가능, 예약 진행 중...");
-            }
-            bookingService.createBooking(bookingRequestDTO, auth);
+                && bookingRequestDTO.getEndDate() != null) {
 
-            responseMsg = String.format(
-                    "예약이 완료되었습니다! (%s ~ %s, %d명)",
-                    bookingRequestDTO.getStartDate(),
-                    bookingRequestDTO.getEndDate(),
-                    bookingRequestDTO.getHeadcount());
+            // 예약 가능만 문의(headcount 없는 경우, 또는 0/빈값)
+            if (bookingRequestDTO.getHeadcount() <= 0) {
+                boolean isAvailable = bookingService.isAvailable(bookingRequestDTO);
+                responseMsg = isAvailable
+                        ? String.format("요청하신 기간(%s ~ %s)은 예약이 가능합니다!",
+                        bookingRequestDTO.getStartDate(), bookingRequestDTO.getEndDate())
+                        : String.format("죄송합니다. 요청하신 기간(%s ~ %s)은 이미 예약이 되어 있습니다.",
+                        bookingRequestDTO.getStartDate(), bookingRequestDTO.getEndDate());
+            }
+            // 실제 예약 요청 (인원까지 모두 입력)
+            else {
+                if (!bookingService.isAvailable(bookingRequestDTO)) {
+                    responseMsg = String.format("죄송합니다. 요청하신 기간(%s ~ %s)은 이미 예약이 되어 있습니다.",
+                            bookingRequestDTO.getStartDate(), bookingRequestDTO.getEndDate());
+                    chatLogService.saveBotChat(auth, responseMsg);
+                    redisChatService.addChatMessage(auth, new ChatMessageDTO(Role.MODEL, responseMsg));
+                    return ResponseEntity.badRequest().body(new QueryResponseDTO(responseMsg));
+                }
+                bookingService.createBooking(bookingRequestDTO, auth);
+                responseMsg = String.format(
+                        "예약이 완료되었습니다! (%s ~ %s, %d명)",
+                        bookingRequestDTO.getStartDate(),
+                        bookingRequestDTO.getEndDate(),
+                        bookingRequestDTO.getHeadcount());
+            }
         }
 
         // 답변/로그 저장(공통)
