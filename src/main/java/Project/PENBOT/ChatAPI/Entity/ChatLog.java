@@ -4,14 +4,16 @@ package Project.PENBOT.ChatAPI.Entity;
 import Project.PENBOT.Booking.Entity.Booking;
 import Project.PENBOT.User.Entity.User;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ChatLog {
 
     @Id
@@ -28,7 +30,7 @@ public class ChatLog {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Sender sender;
+    private Role role;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String message;
