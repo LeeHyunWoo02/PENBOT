@@ -10,6 +10,7 @@ import Project.PENBOT.ChatAPI.Service.GeminiService;
 import Project.PENBOT.ChatAPI.Service.RedisChatService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/gemini")
 public class GeminiController {
@@ -67,27 +69,51 @@ public class GeminiController {
         chatLogService.saveBotChat(auth, answer);
         ChatMessageDTO chatMessageDTO2 = new ChatMessageDTO(Role.MODEL, answer);
         redisChatService.addChatMessage(auth, chatMessageDTO2);
+        String responseMsg = answer;
 
-        // 예약 API 호출 ( 필요한 정보가 다 있으면 )
+        // 1. 예약 가능 질문(인원 없는 단순 날짜 문의)
         if (bookingRequestDTO != null
                 && bookingRequestDTO.getStartDate() != null
                 && bookingRequestDTO.getEndDate() != null
+                && bookingRequestDTO.getHeadcount() == 0) {
+            log.info("예약 가능 여부 확인 요청: {}", bookingRequestDTO.getStartDate());
+            boolean isAvailable = bookingService.isAvailable(bookingRequestDTO);
+            log.info("예약 가능 여부: {}", isAvailable);
+            responseMsg = isAvailable
+                    ? String.format("요청하신 기간(%s ~ %s)은 예약이 가능합니다!",
+                    bookingRequestDTO.getStartDate(), bookingRequestDTO.getEndDate())
+                    : String.format("죄송합니다. 요청하신 기간(%s ~ %s)은 이미 예약이 되어 있습니다.",
+                    bookingRequestDTO.getStartDate(), bookingRequestDTO.getEndDate());
+        }
+        // 2. 실제 예약(인원까지 모두 채워진 경우)
+        else if (bookingRequestDTO != null
+                && bookingRequestDTO.getStartDate() != null
+                && bookingRequestDTO.getEndDate() != null
                 && bookingRequestDTO.getHeadcount() > 0) {
-            // 예약 생성
+            log.info("예약 요청: {} ~ {}, 인원: {}",
+                    bookingRequestDTO.getStartDate(),
+                    bookingRequestDTO.getEndDate(),
+                    bookingRequestDTO.getHeadcount());
+            if(!bookingService.isAvailable(bookingRequestDTO)) {
+                responseMsg = String.format("죄송합니다. 요청하신 기간(%s ~ %s)은 이미 예약이 되어 있습니다.",
+                        bookingRequestDTO.getStartDate(), bookingRequestDTO.getEndDate());
+                return ResponseEntity.badRequest().body(new QueryResponseDTO(responseMsg));
+            } else {
+                log.info("예약 가능, 예약 진행 중...");
+            }
             bookingService.createBooking(bookingRequestDTO, auth);
 
-            String successMsg =  String.format(
+            responseMsg = String.format(
                     "예약이 완료되었습니다! (%s ~ %s, %d명)",
                     bookingRequestDTO.getStartDate(),
                     bookingRequestDTO.getEndDate(),
-                    bookingRequestDTO.getHeadcount()
-            );
-
-            chatLogService.saveBotChat(auth, successMsg);
-            redisChatService.addChatMessage(auth, new ChatMessageDTO(Role.MODEL, successMsg));
-            return ResponseEntity.ok(new QueryResponseDTO(successMsg));
+                    bookingRequestDTO.getHeadcount());
         }
 
-        return ResponseEntity.ok(new QueryResponseDTO(answer));
+        // 답변/로그 저장(공통)
+        chatLogService.saveBotChat(auth, responseMsg);
+        redisChatService.addChatMessage(auth, new ChatMessageDTO(Role.MODEL, responseMsg));
+        return ResponseEntity.ok(new QueryResponseDTO(responseMsg));
+
     }
 }
