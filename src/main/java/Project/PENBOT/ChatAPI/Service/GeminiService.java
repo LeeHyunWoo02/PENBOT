@@ -72,8 +72,8 @@ public class GeminiService {
 
         // Redis에 저장된 과거 대화 context 추가
         for(ChatMessageDTO msg : context){
-            ChatRole chatRole = msg.getChatRole() == ChatRole.USER ? ChatRole.USER : ChatRole.MODEL;
-            contents.add(new Content(chatRole, List.of(new TextPart(msg.getMessage()))));
+            ChatRole role = msg.getRole() == ChatRole.USER ? ChatRole.USER : ChatRole.MODEL;
+            contents.add(new Content(role, List.of(new TextPart(msg.getMessage()))));
         }
 
         // 이번 요청의 User 입력도 마지막에 추가

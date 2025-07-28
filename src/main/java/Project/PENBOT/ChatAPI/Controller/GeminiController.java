@@ -79,12 +79,17 @@ public class GeminiController {
 
             // 예약 가능만 문의(headcount 없는 경우, 또는 0/빈값)
             if (bookingRequestDTO.getHeadcount() <= 0) {
-                boolean isAvailable = bookingService.isAvailable(bookingRequestDTO);
-                responseMsg = isAvailable
-                        ? String.format("요청하신 기간(%s ~ %s)은 예약이 가능합니다!",
-                        bookingRequestDTO.getStartDate(), bookingRequestDTO.getEndDate())
-                        : String.format("죄송합니다. 요청하신 기간(%s ~ %s)은 이미 예약이 되어 있습니다.",
-                        bookingRequestDTO.getStartDate(), bookingRequestDTO.getEndDate());
+                if (!bookingService.isAvailable(bookingRequestDTO)) {
+                    responseMsg = String.format("죄송합니다. 요청하신 기간(%s ~ %s)은 이미 예약이 되어 있습니다.",
+                            bookingRequestDTO.getStartDate(), bookingRequestDTO.getEndDate());
+                    chatLogService.saveBotChat(auth, responseMsg);
+                    redisChatService.addChatMessage(auth, new ChatMessageDTO(ChatRole.MODEL, responseMsg));
+                    return ResponseEntity.badRequest().body(new QueryResponseDTO(responseMsg));
+                }
+                responseMsg = String.format(
+                        "요청하신 기간(%s ~ %s)은 예약이 가능합니다. 인원 수를 입력해 주세요.",
+                        bookingRequestDTO.getStartDate(),
+                        bookingRequestDTO.getEndDate());
             }
             // 실제 예약 요청 (인원까지 모두 입력)
             else {

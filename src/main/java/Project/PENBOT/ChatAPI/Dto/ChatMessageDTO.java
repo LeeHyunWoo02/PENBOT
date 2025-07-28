@@ -9,6 +9,6 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class ChatMessageDTO {
-    private ChatRole chatRole;
+    private ChatRole role;
     private String message;
 }

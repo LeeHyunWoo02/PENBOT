@@ -3,6 +3,7 @@ package Project.PENBOT.Host.Service;
 import Project.PENBOT.Booking.Converter.BookingConverter;
 import Project.PENBOT.Booking.Dto.BookingResponseDTO;
 import Project.PENBOT.Booking.Dto.MyBookingResponseDTO;
+import Project.PENBOT.Booking.Entity.BookStatus;
 import Project.PENBOT.Booking.Entity.Booking;
 import Project.PENBOT.Booking.Repository.BookingRepository;
 import Project.PENBOT.Booking.Serivce.BookingService;
@@ -12,12 +13,16 @@ import Project.PENBOT.Host.Converter.BlockedDateConverter;
 import Project.PENBOT.Host.Dto.BlockDateRequestDTO;
 import Project.PENBOT.Host.Dto.BlockedDateResponseDTO;
 import Project.PENBOT.Host.Dto.BookingUpdateRequestDTO;
+import Project.PENBOT.Host.Dto.UnavailableDateDTO;
 import Project.PENBOT.Host.Entity.BlockedDate;
 import Project.PENBOT.Host.Repository.BlockedDateRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -90,8 +95,8 @@ public class HostService {
     }
 
     public BlockedDateResponseDTO createBlockedDate(BlockDateRequestDTO requestDTO) {
-        boolean available = isAvailable(requestDTO.getEndDate(), requestDTO.getStartDate());
-        if (!available) {
+        
+        if (!isAvailable(requestDTO.getEndDate(), requestDTO.getStartDate())) {
             throw new BlockedDateConflictException();
         }
 
@@ -106,7 +111,39 @@ public class HostService {
 
     }
 
+    public List<UnavailableDateDTO> getUnavailableDates() {
+        List<UnavailableDateDTO> unavailableDates = new ArrayList<>();
+
+        // 예약된 날짜 → BOOKED
+        List<BookStatus> statuses = Arrays.asList(BookStatus.CONFIRMED, BookStatus.PENDING);
+        List<Booking> bookings = bookingRepository.findAllByStatusIn(statuses); // 예약 확정된 것만
+        for (Booking booking : bookings) {
+            unavailableDates.add(UnavailableDateDTO.builder()
+                    .startDate(booking.getStartDate())
+                    .endDate(booking.getEndDate())
+                    .reason(booking.getStatus() == BookStatus.PENDING ? "예약 대기 중" : "예약 확정")
+                    .type("BOOKED")
+                    .build());
+        }
+
+        // 차단된 날짜 → BLOCKED
+        List<BlockedDate> blockedDates = blockedDateRepository.findAll();
+        for (BlockedDate blocked : blockedDates) {
+            unavailableDates.add(UnavailableDateDTO.builder()
+                    .startDate(blocked.getStartDate())
+                    .endDate(blocked.getEndDate())
+                    .reason(blocked.getReason())
+                    .type("BLOCKED")
+                    .build());
+        }
+
+        return unavailableDates;
+    }
     public boolean isAvailable(LocalDate startDate, LocalDate endDate){
-        return !bookingRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(endDate, startDate);
+        boolean isBooked = bookingRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(endDate, startDate);
+        boolean isBlocked = blockedDateRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(endDate, startDate); // BlockedDate 존재 여부
+
+        return (isBooked || isBlocked);
+
     }
 }

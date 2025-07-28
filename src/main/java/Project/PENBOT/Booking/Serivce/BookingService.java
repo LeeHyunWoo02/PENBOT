@@ -9,7 +9,7 @@ import Project.PENBOT.Booking.Dto.MyBookingResponseDTO;
 import Project.PENBOT.Booking.Entity.Booking;
 import Project.PENBOT.Booking.Repository.BookingRepository;
 import Project.PENBOT.CustomException.UserNotFoundException;
-import Project.PENBOT.Host.Service.HostService;
+import Project.PENBOT.Host.Repository.BlockedDateRepository;
 import Project.PENBOT.User.Entity.User;
 import Project.PENBOT.User.Repository.UserRepository;
 import Project.PENBOT.User.Util.JwtUtil;
@@ -26,13 +26,13 @@ import java.util.Optional;
 public class BookingService {
 
     private final BookingRepository bookingRepository;
-    private final HostService hostService;
+    private final BlockedDateRepository blockedDateRepository;
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
 
-    public BookingService(BookingRepository bookingRepository, HostService hostService, UserRepository userRepository, JwtUtil jwtUtil) {
+    public BookingService(BookingRepository bookingRepository, BlockedDateRepository blockedDateRepository, UserRepository userRepository, JwtUtil jwtUtil) {
         this.bookingRepository = bookingRepository;
-        this.hostService = hostService;
+        this.blockedDateRepository = blockedDateRepository;
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
     }
@@ -62,9 +62,9 @@ public class BookingService {
         LocalDate end = requestDTO.getEndDate();
 
         boolean isBooked = bookingRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(end, start);
-        boolean isBlocked = !hostService.isAvailable(end, start); // BlockedDate 존재 여부
+        boolean isBlocked = blockedDateRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(end, start); // BlockedDate 존재 여부
 
-        return !(isBooked || isBlocked);
+        return (isBooked || isBlocked);
 
     }
 

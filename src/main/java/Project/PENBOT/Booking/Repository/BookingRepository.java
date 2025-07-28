@@ -1,5 +1,6 @@
 package Project.PENBOT.Booking.Repository;
 
+import Project.PENBOT.Booking.Entity.BookStatus;
 import Project.PENBOT.Booking.Entity.Booking;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -15,6 +16,6 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
      * */
     boolean existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(LocalDate endDate, LocalDate startDate);
     Optional<Booking> findById(int id);
-
+    List<Booking> findAllByStatusIn(List<BookStatus> statuses);
 
 }

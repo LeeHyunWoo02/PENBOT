@@ -13,6 +13,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Content {
-    private ChatRole chatRole;
+    private ChatRole role;
     private List<TextPart> parts;
 }
