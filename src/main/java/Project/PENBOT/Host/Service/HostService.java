@@ -94,8 +94,24 @@ public class HostService {
                 .build();
     }
 
+    @Transactional
+    public BlockedDateResponseDTO deleteBlocked(int blockedDateId) {
+        Optional<BlockedDate> blockedDateOptional = blockedDateRepository.findById(blockedDateId);
+        if (blockedDateOptional.isEmpty()) {
+            throw new BookingNotFoundException("차단된 날짜를 찾을 수 없습니다.");
+        }
+
+        blockedDateRepository.delete(blockedDateOptional.get());
+        return BlockedDateResponseDTO.builder()
+                .success(true)
+                .message("차단 날짜가 성공적으로 삭제되었습니다.")
+                .blockedDateId(blockedDateId)
+                .build();
+    }
+
+    @Transactional
     public BlockedDateResponseDTO createBlockedDate(BlockDateRequestDTO requestDTO) {
-        
+
         if (!isAvailable(requestDTO.getEndDate(), requestDTO.getStartDate())) {
             throw new BlockedDateConflictException();
         }
@@ -111,6 +127,9 @@ public class HostService {
 
     }
 
+    /**
+     * 불가능한 날짜 모두 조회
+     * */
     public List<UnavailableDateDTO> getUnavailableDates() {
         List<UnavailableDateDTO> unavailableDates = new ArrayList<>();
 
@@ -139,6 +158,7 @@ public class HostService {
 
         return unavailableDates;
     }
+
     public boolean isAvailable(LocalDate startDate, LocalDate endDate){
         boolean isBooked = bookingRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(endDate, startDate);
         boolean isBlocked = blockedDateRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(endDate, startDate); // BlockedDate 존재 여부
