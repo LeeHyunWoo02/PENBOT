@@ -1,9 +1,9 @@
 package Project.PENBOT.Host.Controller;
 
+import Project.PENBOT.Booking.Dto.BookingResponseDTO;
 import Project.PENBOT.Booking.Dto.MyBookingResponseDTO;
 import Project.PENBOT.CustomException.BookingNotFoundException;
 import Project.PENBOT.Host.Dto.BookingUpdateRequestDTO;
-import Project.PENBOT.Host.Dto.BookingUpdateResponseDTO;
 import Project.PENBOT.Host.Service.HostService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -40,15 +40,15 @@ public class HostController {
      * 예약 상태 변경 ( 대기 -> 승인 )
      * */
     @PutMapping("/bookings/{bookingId}")
-    public ResponseEntity<BookingUpdateResponseDTO> updateBooking(@PathVariable int bookingId,
-                                                                  @RequestBody BookingUpdateRequestDTO request){
+    public ResponseEntity<BookingResponseDTO> updateBooking(@PathVariable int bookingId,
+                                                            @RequestBody BookingUpdateRequestDTO request){
         try{
-            BookingUpdateResponseDTO responseDTO = hostService.updateBooking(bookingId, request);
+            BookingResponseDTO responseDTO = hostService.updateBooking(bookingId, request);
             return ResponseEntity.ok(responseDTO);
 
         } catch (BookingNotFoundException e){
             return ResponseEntity.badRequest().body(
-                    BookingUpdateResponseDTO.builder()
+                    BookingResponseDTO.builder()
                             .success(false)
                             .message("예약 정보를 찾을 수 없습니다: " + e.getMessage())
                             .bookingId(0)
@@ -56,9 +56,36 @@ public class HostController {
             );
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(
-                    BookingUpdateResponseDTO.builder()
+                    BookingResponseDTO.builder()
                             .success(false)
                             .message("예약 정보 업데이트에 실패했습니다: " + e.getMessage())
+                            .bookingId(0)
+                            .build()
+            );
+        }
+    }
+
+    /**
+     * 예약 삭제
+     * */
+    @DeleteMapping("/bookings/{bookingId}")
+    public ResponseEntity<BookingResponseDTO> deleteBooking(@PathVariable int bookingId){
+        try{
+            BookingResponseDTO responseDTO = hostService.deleteBooking(bookingId);
+            return ResponseEntity.ok(responseDTO);
+        } catch (BookingNotFoundException e) {
+            return ResponseEntity.badRequest().body(
+                    BookingResponseDTO.builder()
+                            .success(false)
+                            .message("예약 정보를 찾을 수 없습니다: " + e.getMessage())
+                            .bookingId(0)
+                            .build()
+            );
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(
+                    BookingResponseDTO.builder()
+                            .success(false)
+                            .message("예약 삭제에 실패했습니다: " + e.getMessage())
                             .bookingId(0)
                             .build()
             );

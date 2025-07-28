@@ -1,12 +1,12 @@
 package Project.PENBOT.Host.Service;
 
 import Project.PENBOT.Booking.Converter.BookingConverter;
+import Project.PENBOT.Booking.Dto.BookingResponseDTO;
 import Project.PENBOT.Booking.Dto.MyBookingResponseDTO;
 import Project.PENBOT.Booking.Entity.Booking;
 import Project.PENBOT.Booking.Repository.BookingRepository;
 import Project.PENBOT.CustomException.BookingNotFoundException;
 import Project.PENBOT.Host.Dto.BookingUpdateRequestDTO;
-import Project.PENBOT.Host.Dto.BookingUpdateResponseDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -40,7 +40,7 @@ public class HostService {
      * 예약 상태 변경 ( 대기 -> 승인 )
      * */
     @Transactional
-    public BookingUpdateResponseDTO updateBooking(int bookingId, BookingUpdateRequestDTO requestDTO) {
+    public BookingResponseDTO updateBooking(int bookingId, BookingUpdateRequestDTO requestDTO) {
 
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(BookingNotFoundException::new);
 
@@ -52,10 +52,28 @@ public class HostService {
                 .build();
 
         bookingRepository.save(booking);
-        return BookingUpdateResponseDTO.builder()
+        return BookingResponseDTO.builder()
                 .success(true)
                 .message("예약 정보가 성공적으로 업데이트되었습니다.")
                 .bookingId(booking.getId())
+                .build();
+    }
+
+    /**
+     * 예약 삭제
+     * */
+    @Transactional
+    public BookingResponseDTO deleteBooking(int bookingId) {
+        Optional<Booking> bookingOptional = bookingRepository.findById(bookingId);
+        if (bookingOptional.isEmpty()) {
+            throw new BookingNotFoundException();
+        }
+
+        bookingRepository.delete(bookingOptional.get());
+        return BookingResponseDTO.builder()
+                .success(true)
+                .message("예약이 성공적으로 삭제되었습니다.")
+                .bookingId(bookingId)
                 .build();
     }
 }
