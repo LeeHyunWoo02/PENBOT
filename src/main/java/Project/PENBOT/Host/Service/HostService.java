@@ -5,20 +5,32 @@ import Project.PENBOT.Booking.Dto.BookingResponseDTO;
 import Project.PENBOT.Booking.Dto.MyBookingResponseDTO;
 import Project.PENBOT.Booking.Entity.Booking;
 import Project.PENBOT.Booking.Repository.BookingRepository;
+import Project.PENBOT.Booking.Serivce.BookingService;
+import Project.PENBOT.CustomException.BlockedDateConflictException;
 import Project.PENBOT.CustomException.BookingNotFoundException;
+import Project.PENBOT.Host.Converter.BlockedDateConverter;
+import Project.PENBOT.Host.Dto.BlockDateRequestDTO;
+import Project.PENBOT.Host.Dto.BlockedDateResponseDTO;
 import Project.PENBOT.Host.Dto.BookingUpdateRequestDTO;
+import Project.PENBOT.Host.Entity.BlockedDate;
+import Project.PENBOT.Host.Repository.BlockedDateRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 @Service
 public class HostService {
 
     private final BookingRepository bookingRepository;
+    private final BlockedDateRepository blockedDateRepository;
+    private final BookingService bookingService;
 
-    public HostService(BookingRepository bookingRepository) {
+    public HostService(BookingRepository bookingRepository, BlockedDateRepository blockedDateRepository, BookingService bookingService) {
         this.bookingRepository = bookingRepository;
+        this.blockedDateRepository = blockedDateRepository;
+        this.bookingService = bookingService;
     }
 
     /**
@@ -75,5 +87,26 @@ public class HostService {
                 .message("예약이 성공적으로 삭제되었습니다.")
                 .bookingId(bookingId)
                 .build();
+    }
+
+    public BlockedDateResponseDTO createBlockedDate(BlockDateRequestDTO requestDTO) {
+        boolean available = isAvailable(requestDTO.getEndDate(), requestDTO.getStartDate());
+        if (!available) {
+            throw new BlockedDateConflictException();
+        }
+
+        BlockedDate blockedDate = BlockedDateConverter.toEntity(requestDTO);
+        blockedDateRepository.save(blockedDate);
+
+        return BlockedDateResponseDTO.builder()
+                .success(true)
+                .message("차단 날짜가 성공적으로 생성되었습니다.")
+                .blockedDateId(blockedDate.getId())
+                .build();
+
+    }
+
+    public boolean isAvailable(LocalDate startDate, LocalDate endDate){
+        return !bookingRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(endDate, startDate);
     }
 }
