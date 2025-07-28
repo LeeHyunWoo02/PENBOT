@@ -1,7 +1,7 @@
 package Project.PENBOT.ChatAPI.Service;
 
 import Project.PENBOT.ChatAPI.Dto.*;
-import Project.PENBOT.ChatAPI.Entity.Role;
+import Project.PENBOT.ChatAPI.Entity.ChatRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -68,16 +68,16 @@ public class GeminiService {
                         "     → 안내문구: \"저희 펜션은 강원도 속초시에 위치해 있습니다.\"\n";
 
 
-        contents.add(new Content(Role.USER, List.of(new TextPart(promptText))));
+        contents.add(new Content(ChatRole.USER, List.of(new TextPart(promptText))));
 
         // Redis에 저장된 과거 대화 context 추가
         for(ChatMessageDTO msg : context){
-            Role role = msg.getRole() == Role.USER ? Role.USER : Role.MODEL;
-            contents.add(new Content(role, List.of(new TextPart(msg.getMessage()))));
+            ChatRole chatRole = msg.getChatRole() == ChatRole.USER ? ChatRole.USER : ChatRole.MODEL;
+            contents.add(new Content(chatRole, List.of(new TextPart(msg.getMessage()))));
         }
 
         // 이번 요청의 User 입력도 마지막에 추가
-        contents.add(new Content(Role.USER, List.of(new TextPart(latestUserInput))));
+        contents.add(new Content(ChatRole.USER, List.of(new TextPart(latestUserInput))));
 
         GeminiRequestDTO request = new GeminiRequestDTO();
         request.setContents(contents);

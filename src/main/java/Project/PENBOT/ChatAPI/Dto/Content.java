@@ -1,6 +1,6 @@
 package Project.PENBOT.ChatAPI.Dto;
 
-import Project.PENBOT.ChatAPI.Entity.Role;
+import Project.PENBOT.ChatAPI.Entity.ChatRole;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +13,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Content {
-    private Role role;
+    private ChatRole chatRole;
     private List<TextPart> parts;
 }

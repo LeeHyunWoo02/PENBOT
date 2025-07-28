@@ -4,7 +4,7 @@ import Project.PENBOT.Booking.Serivce.BookingService;
 import Project.PENBOT.ChatAPI.Dto.ChatMessageDTO;
 import Project.PENBOT.ChatAPI.Dto.QueryRequestDTO;
 import Project.PENBOT.ChatAPI.Dto.QueryResponseDTO;
-import Project.PENBOT.ChatAPI.Entity.Role;
+import Project.PENBOT.ChatAPI.Entity.ChatRole;
 import Project.PENBOT.ChatAPI.Service.ChatLogService;
 import Project.PENBOT.ChatAPI.Service.GeminiService;
 import Project.PENBOT.ChatAPI.Service.RedisChatService;
@@ -42,7 +42,7 @@ public class GeminiController {
                                                       @RequestHeader(HttpHeaders.AUTHORIZATION) String auth){
         // ChatLog에 질문 저장 && Redis에 질문 저장
         chatLogService.saveUserChat(auth, requestDTO);
-        ChatMessageDTO chatMessageDTO= new ChatMessageDTO(Role.USER, requestDTO.getText());
+        ChatMessageDTO chatMessageDTO= new ChatMessageDTO(ChatRole.USER, requestDTO.getText());
         redisChatService.addChatMessage(auth, chatMessageDTO);
 
         // Gemini API 호출
@@ -68,7 +68,7 @@ public class GeminiController {
 
         // ChatLog에 답변 저장 && Redis에 답변 저장
         chatLogService.saveBotChat(auth, answer);
-        ChatMessageDTO chatMessageDTO2 = new ChatMessageDTO(Role.MODEL, answer);
+        ChatMessageDTO chatMessageDTO2 = new ChatMessageDTO(ChatRole.MODEL, answer);
         redisChatService.addChatMessage(auth, chatMessageDTO2);
         String responseMsg = answer;
 
@@ -92,7 +92,7 @@ public class GeminiController {
                     responseMsg = String.format("죄송합니다. 요청하신 기간(%s ~ %s)은 이미 예약이 되어 있습니다.",
                             bookingRequestDTO.getStartDate(), bookingRequestDTO.getEndDate());
                     chatLogService.saveBotChat(auth, responseMsg);
-                    redisChatService.addChatMessage(auth, new ChatMessageDTO(Role.MODEL, responseMsg));
+                    redisChatService.addChatMessage(auth, new ChatMessageDTO(ChatRole.MODEL, responseMsg));
                     return ResponseEntity.badRequest().body(new QueryResponseDTO(responseMsg));
                 }
                 bookingService.createBooking(bookingRequestDTO, auth);
@@ -106,7 +106,7 @@ public class GeminiController {
 
         // 답변/로그 저장(공통)
         chatLogService.saveBotChat(auth, responseMsg);
-        redisChatService.addChatMessage(auth, new ChatMessageDTO(Role.MODEL, responseMsg));
+        redisChatService.addChatMessage(auth, new ChatMessageDTO(ChatRole.MODEL, responseMsg));
         return ResponseEntity.ok(new QueryResponseDTO(responseMsg));
 
     }

@@ -3,7 +3,7 @@ package Project.PENBOT.ChatAPI.Converter;
 
 import Project.PENBOT.ChatAPI.Dto.QueryRequestDTO;
 import Project.PENBOT.ChatAPI.Entity.ChatLog;
-import Project.PENBOT.ChatAPI.Entity.Role;
+import Project.PENBOT.ChatAPI.Entity.ChatRole;
 import Project.PENBOT.User.Entity.User;
 
 public class ChatLogConverter {
@@ -11,7 +11,7 @@ public class ChatLogConverter {
         return ChatLog.builder()
                 .user(user)
                 .message(requestDTO.getText())
-                .role(Role.USER)
+                .chatRole(ChatRole.USER)
                 .build();
     }
 
@@ -19,7 +19,7 @@ public class ChatLogConverter {
         return ChatLog.builder()
                 .user(user)
                 .message(answer)
-                .role(Role.MODEL)
+                .chatRole(ChatRole.MODEL)
                 .build();
     }
 }
