@@ -6,16 +6,16 @@ import Project.PENBOT.Booking.Dto.MyBookingResponseDTO;
 import Project.PENBOT.Booking.Entity.BookStatus;
 import Project.PENBOT.Booking.Entity.Booking;
 import Project.PENBOT.Booking.Repository.BookingRepository;
-import Project.PENBOT.Booking.Serivce.BookingService;
 import Project.PENBOT.CustomException.BlockedDateConflictException;
 import Project.PENBOT.CustomException.BookingNotFoundException;
+import Project.PENBOT.CustomException.UserNotFoundException;
 import Project.PENBOT.Host.Converter.BlockedDateConverter;
-import Project.PENBOT.Host.Dto.BlockDateRequestDTO;
-import Project.PENBOT.Host.Dto.BlockedDateResponseDTO;
-import Project.PENBOT.Host.Dto.BookingUpdateRequestDTO;
-import Project.PENBOT.Host.Dto.UnavailableDateDTO;
+import Project.PENBOT.Host.Dto.*;
 import Project.PENBOT.Host.Entity.BlockedDate;
 import Project.PENBOT.Host.Repository.BlockedDateRepository;
+import Project.PENBOT.User.Dto.UserResponseDTO;
+import Project.PENBOT.User.Entity.User;
+import Project.PENBOT.User.Repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -24,18 +24,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class HostService {
 
     private final BookingRepository bookingRepository;
     private final BlockedDateRepository blockedDateRepository;
-    private final BookingService bookingService;
+    private final UserRepository userRepository;
 
-    public HostService(BookingRepository bookingRepository, BlockedDateRepository blockedDateRepository, BookingService bookingService) {
+    public HostService(BookingRepository bookingRepository, BlockedDateRepository blockedDateRepository, UserRepository userRepository) {
         this.bookingRepository = bookingRepository;
         this.blockedDateRepository = blockedDateRepository;
-        this.bookingService = bookingService;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -157,6 +158,53 @@ public class HostService {
         }
 
         return unavailableDates;
+    }
+
+    @Transactional
+    public UserResponseDTO deleteUser(int userId){
+        User user = userRepository.findById(userId);
+        if(user == null){
+            throw new UserNotFoundException();
+        }
+        userRepository.delete(user);
+        return new UserResponseDTO(true, "사용자가 성공적으로 삭제되었습니다.");
+    }
+
+    /**
+     * 가입한 유저 모두 조회
+     * */
+    public List<UserListResponseDTO> getAllUsers(){
+
+        List<User> users = userRepository.findAll();
+        if(users == null){
+            throw new UserNotFoundException();
+        }
+        return users.stream()
+                .map(user -> UserListResponseDTO.builder()
+                        .id(user.getId())
+                        .name(user.getName())
+                        .email(user.getEmail())
+                        .phone(user.getPhone())
+                        .role(user.getRole().toString()) // Role을 문자열로 변환
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 유저 상세 조회
+     * */
+    public UserDetailResponseDTO getUserDetail(int userId){
+        User user = userRepository.findById(userId);
+        if(user == null){
+            throw new UserNotFoundException();
+        }
+
+        return UserDetailResponseDTO.builder()
+                .name(user.getName())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .role(user.getRole())
+                .build();
     }
 
     public boolean isAvailable(LocalDate startDate, LocalDate endDate){
