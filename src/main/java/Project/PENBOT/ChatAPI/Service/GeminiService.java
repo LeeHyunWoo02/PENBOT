@@ -16,13 +16,35 @@ public class GeminiService {
 
     private final GeminiInterface geminiInterface;
     private final RedisChatService redisChatService;
+    private final GooglePlacesService googlePlacesService;
 
     @Autowired
-    public GeminiService(GeminiInterface geminiInterface, RedisChatService redisChatService) {
+    public GeminiService(GeminiInterface geminiInterface, RedisChatService redisChatService, GooglePlacesService googlePlacesService) {
         this.geminiInterface = geminiInterface;
         this.redisChatService = redisChatService;
+        this.googlePlacesService = googlePlacesService;
     }
     public String getCompletion(String text, String auth){
+        // 사용자 질문이 장소 추천 관련인지 확인
+        if (isPlaceRecommendQuestion(text)){
+            String place = extractPlaceType(text);
+            List<PlaceInfoDTO> places = googlePlacesService.searchNearby(place, place);
+            String placePrompt = makePlaceRecommendPrompt(places, text);
+
+            GeminiRequestDTO placeRequest = buildSinglePrompt(placePrompt);
+            GeminiResponseDTO response = geminiInterface.getCompletion(GEMINI_FLASH, placeRequest);
+
+            return response.getCandidates()
+                    .stream()
+                    .findFirst()
+                    .flatMap(candidate -> candidate.getContent().getParts()
+                            .stream()
+                            .findFirst()
+                            .map(part -> Optional.ofNullable(((TextPart) part).getText()).orElse(null)))
+                    .orElse(null);
+        }
+
+        // 일반 예약 관련 질문 처리
         List<ChatMessageDTO> context = redisChatService.getRecentMessages(auth);
 
         GeminiRequestDTO request = buildGeminiBookingPrompt(context, text);
@@ -84,4 +106,48 @@ public class GeminiService {
         return request;
     }
 
+    // 장소 추천 질문 판별
+    private boolean isPlaceRecommendQuestion(String text) {
+        String t = text.toLowerCase();
+        return t.contains("맛집") || t.contains("카페") || t.contains("관광지") ||
+                t.contains("근처") || t.contains("주변") || t.contains("놀거리");
+    }
+
+    // 장소 유형 추출
+    private String extractPlaceType(String text) {
+        if (text.contains("맛집") || text.contains("음식점")){
+            return "restaurant";
+        }
+        if (text.contains("카페")) {
+            return "cafe";
+        }
+        if (text.contains("관광지") || text.contains("명소")){
+            return "tourist_attraction";
+        }
+        return "restaurant";
+    }
+
+    // ▶️ Google Place 결과 → Gemini 자연어 추천 프롬프트 생성
+    private String makePlaceRecommendPrompt(List<PlaceInfoDTO> places, String userText) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("대부도 라온아띠 펜션 주변 추천 장소입니다:\n");
+        int idx = 1;
+        for (PlaceInfoDTO p : places) {
+            sb.append(idx++).append(". ").append(p.getName())
+                    .append(" (평점: ").append(p.getRating())
+                    .append(", 주소: ").append(p.getAddress()).append(")\n");
+        }
+        sb.append("\n위의 장소 중 손님에게 추천할 만한 곳을 자연스럽게 안내해줘. " +
+                "사용자 질문: ").append(userText);
+        return sb.toString();
+    }
+
+    // ▶️ 단일 프롬프트만 Gemini에 보낼 때 (장소추천용)
+    private GeminiRequestDTO buildSinglePrompt(String prompt) {
+        List<Content> contents = new ArrayList<>();
+        contents.add(new Content(ChatRole.USER, List.of(new TextPart(prompt))));
+        GeminiRequestDTO request = new GeminiRequestDTO();
+        request.setContents(contents);
+        return request;
+    }
 }

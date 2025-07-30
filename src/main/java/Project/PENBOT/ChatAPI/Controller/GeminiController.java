@@ -2,11 +2,13 @@ package Project.PENBOT.ChatAPI.Controller;
 import Project.PENBOT.Booking.Dto.BookingRequestDTO;
 import Project.PENBOT.Booking.Serivce.BookingService;
 import Project.PENBOT.ChatAPI.Dto.ChatMessageDTO;
+import Project.PENBOT.ChatAPI.Dto.PlaceInfoDTO;
 import Project.PENBOT.ChatAPI.Dto.QueryRequestDTO;
 import Project.PENBOT.ChatAPI.Dto.QueryResponseDTO;
 import Project.PENBOT.ChatAPI.Entity.ChatRole;
 import Project.PENBOT.ChatAPI.Service.ChatLogService;
 import Project.PENBOT.ChatAPI.Service.GeminiService;
+import Project.PENBOT.ChatAPI.Service.GooglePlacesService;
 import Project.PENBOT.ChatAPI.Service.RedisChatService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,13 +29,15 @@ public class GeminiController {
     private final GeminiService geminiService;
     private final ChatLogService chatLogService;
     private final BookingService bookingService;
+    private final GooglePlacesService googlePlacesService;
     private final RedisChatService redisChatService;
     private final ObjectMapper objectMapper;
 
-    public GeminiController(GeminiService geminiService, ChatLogService chatLogService, BookingService bookingService, RedisChatService redisChatService, ObjectMapper objectMapper) {
+    public GeminiController(GeminiService geminiService, ChatLogService chatLogService, BookingService bookingService, GooglePlacesService googlePlacesService, RedisChatService redisChatService, ObjectMapper objectMapper) {
         this.geminiService = geminiService;
         this.chatLogService = chatLogService;
         this.bookingService = bookingService;
+        this.googlePlacesService = googlePlacesService;
         this.redisChatService = redisChatService;
         this.objectMapper = objectMapper;
     }
@@ -44,6 +49,26 @@ public class GeminiController {
         chatLogService.saveUserChat(auth, requestDTO);
         ChatMessageDTO chatMessageDTO= new ChatMessageDTO(ChatRole.USER, requestDTO.getText());
         redisChatService.addChatMessage(auth, chatMessageDTO);
+
+        String userText = requestDTO.getText();
+        String lower = userText.toLowerCase();
+        if (lower.contains("맛집") || lower.contains("카페")) {
+            // type은 google api docs 참고 (restaurant, cafe 등)
+            String keyword = lower.contains("카페") ? "카페" : "맛집";
+            String type = lower.contains("카페") ? "cafe" : "restaurant";
+            List<PlaceInfoDTO> places = googlePlacesService.searchNearby(keyword, type);
+
+            // 결과가 없으면 안내, 있으면 Top 5 안내
+            String resultMsg = formatPlaceResult(places, keyword);
+
+            // 답변 저장/반환
+            chatLogService.saveBotChat(auth, resultMsg);
+            ChatMessageDTO chatMessageDTO2 = new ChatMessageDTO(ChatRole.MODEL, resultMsg);
+            redisChatService.addChatMessage(auth, chatMessageDTO2);
+
+            return ResponseEntity.ok(new QueryResponseDTO(resultMsg));
+        }
+
 
         // Gemini API 호출
         String answer = geminiService.getCompletion(requestDTO.getText(), auth);
@@ -114,5 +139,20 @@ public class GeminiController {
         redisChatService.addChatMessage(auth, new ChatMessageDTO(ChatRole.MODEL, responseMsg));
         return ResponseEntity.ok(new QueryResponseDTO(responseMsg));
 
+    }
+
+    private String formatPlaceResult(List<PlaceInfoDTO> places, String keyword) {
+        if (places == null || places.isEmpty()) {
+            return "죄송합니다. 대부도 라온아띠 펜션 주변에 '" + keyword + "' 정보를 찾지 못했습니다.";
+        }
+        StringBuilder sb = new StringBuilder("대부도 라온아띠 펜션 주변 " + keyword + " 추천 Top 5입니다:\n");
+        int idx = 1;
+        for (PlaceInfoDTO p : places) {
+            sb.append(idx++)
+                    .append(". ").append(p.getName())
+                    .append(" (★").append(p.getRating()).append(") ")
+                    .append("- ").append(p.getAddress()).append("\n");
+        }
+        return sb.toString();
     }
 }
