@@ -30,7 +30,7 @@ public class ChatLog {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role;
+    private ChatRole chatRole;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String message;

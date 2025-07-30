@@ -3,13 +3,13 @@ package Project.PENBOT.ChatAPI.Entity;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum Role {
+public enum ChatRole {
     USER("user"),
     MODEL("model");
 
     private final String value;
 
-    Role(String value) {
+    ChatRole(String value) {
         this.value = value;
     }
 
@@ -19,12 +19,12 @@ public enum Role {
     }
 
     @JsonCreator
-    public static Role forValue(String value) {
-        for (Role role : Role.values()) {
-            if (role.value.equalsIgnoreCase(value)) {
-                return role;
+    public static ChatRole forValue(String value) {
+        for (ChatRole chatRole : ChatRole.values()) {
+            if (chatRole.value.equalsIgnoreCase(value)) {
+                return chatRole;
             }
         }
-        throw new IllegalArgumentException("Unknown role: " + value);
+        throw new IllegalArgumentException("Unknown chatRole: " + value);
     }
 }

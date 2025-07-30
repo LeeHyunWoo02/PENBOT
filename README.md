@@ -44,7 +44,7 @@
 │ phone       │   │ │ start_date    │      │ end_date      │
 │ email       │   │ │ end_date      │      │ reason        │
 │ password    │   │ │ headcount     │      └───────────────┘
-│ role        │   │ │ status        │
+│ chatRole        │   │ │ status        │
 │ company     │   │ │ created_at    │
 └─────────────┘   │ └───────────────┘
                   │

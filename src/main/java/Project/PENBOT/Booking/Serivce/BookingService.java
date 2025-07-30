@@ -1,14 +1,15 @@
 package Project.PENBOT.Booking.Serivce;
 
 import Project.PENBOT.Booking.Converter.BookingConverter;
-import Project.PENBOT.ChatAPI.Service.ChatLogService;
 import Project.PENBOT.CustomException.BookingNotFoundException;
+import Project.PENBOT.CustomException.ForbiddenCreateBookingException;
 import Project.PENBOT.CustomException.ForbiddenException;
 import Project.PENBOT.Booking.Dto.BookingRequestDTO;
 import Project.PENBOT.Booking.Dto.MyBookingResponseDTO;
 import Project.PENBOT.Booking.Entity.Booking;
 import Project.PENBOT.Booking.Repository.BookingRepository;
 import Project.PENBOT.CustomException.UserNotFoundException;
+import Project.PENBOT.Host.Repository.BlockedDateRepository;
 import Project.PENBOT.User.Entity.User;
 import Project.PENBOT.User.Repository.UserRepository;
 import Project.PENBOT.User.Util.JwtUtil;
@@ -25,11 +26,13 @@ import java.util.Optional;
 public class BookingService {
 
     private final BookingRepository bookingRepository;
+    private final BlockedDateRepository blockedDateRepository;
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
 
-    public BookingService(BookingRepository bookingRepository, UserRepository userRepository, JwtUtil jwtUtil) {
+    public BookingService(BookingRepository bookingRepository, BlockedDateRepository blockedDateRepository, UserRepository userRepository, JwtUtil jwtUtil) {
         this.bookingRepository = bookingRepository;
+        this.blockedDateRepository = blockedDateRepository;
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
     }
@@ -39,30 +42,29 @@ public class BookingService {
 
         int userId = getUserId(auth);
 
-        LocalDate startDate = requestDTO.getStartDate();
-        LocalDate endDate = requestDTO.getEndDate();
-        boolean isDuplicated = bookingRepository
-                .existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(startDate, endDate);
-
-        if(isDuplicated) {
-            throw new RuntimeException("이미 해당 기간에 예약이 존재합니다.");
+        if (!isAvailable(requestDTO)) {
+            throw new ForbiddenCreateBookingException("예약이 불가능한 날짜입니다.");
         }
 
-        try{
-            User user = userRepository.findById(userId);
-            Booking booking = BookingConverter.toEntity(requestDTO, user);
-            user.addBooking(booking);
-            return bookingRepository.save(booking);
-        } catch (NullPointerException e) {
-            throw new RuntimeException("존재하지 않는 사용자입니다.");
+        User user = userRepository.findById(userId);
+        if( user == null) {
+            throw new UserNotFoundException();
         }
+
+        Booking booking = BookingConverter.toEntity(requestDTO, user);
+        user.addBooking(booking);
+
+        return bookingRepository.save(booking);
     }
 
     public boolean isAvailable(BookingRequestDTO requestDTO) {
         LocalDate start = requestDTO.getStartDate();
         LocalDate end = requestDTO.getEndDate();
-        // 이미 예약된 데이터 있는지 체크
-        return !bookingRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(end, start);
+
+        boolean isBooked = bookingRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(end, start);
+        boolean isBlocked = blockedDateRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(end, start); // BlockedDate 존재 여부
+
+        return (isBooked || isBlocked);
 
     }
 

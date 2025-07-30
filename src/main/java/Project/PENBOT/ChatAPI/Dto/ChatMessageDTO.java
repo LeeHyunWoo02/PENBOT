@@ -1,6 +1,6 @@
 package Project.PENBOT.ChatAPI.Dto;
 
-import Project.PENBOT.ChatAPI.Entity.Role;
+import Project.PENBOT.ChatAPI.Entity.ChatRole;
 import lombok.*;
 
 @Getter
@@ -9,6 +9,6 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class ChatMessageDTO {
-    private Role role;
+    private ChatRole role;
     private String message;
 }

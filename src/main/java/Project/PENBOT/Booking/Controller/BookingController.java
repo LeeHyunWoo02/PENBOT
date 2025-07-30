@@ -8,6 +8,7 @@ import Project.PENBOT.Booking.Entity.Booking;
 import Project.PENBOT.Booking.Serivce.BookingService;
 import Project.PENBOT.ChatAPI.Service.ChatLogService;
 import Project.PENBOT.CustomException.BookingNotFoundException;
+import Project.PENBOT.CustomException.ForbiddenCreateBookingException;
 import Project.PENBOT.CustomException.ForbiddenException;
 import Project.PENBOT.CustomException.UserNotFoundException;
 import org.springframework.http.HttpHeaders;
@@ -104,5 +105,10 @@ public class BookingController {
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<BookingResponseDTO> handleUserNotFound(UserNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new BookingResponseDTO(false, 0, ex.getMessage()));
+    }
+
+    @ExceptionHandler(ForbiddenCreateBookingException.class)
+    public ResponseEntity<BookingResponseDTO> handleForbiddenCreateBooking(ForbiddenCreateBookingException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new BookingResponseDTO(false, 0, ex.getMessage()));
     }
 }

@@ -1,14 +1,16 @@
-package Project.PENBOT.Booking.Entity;
+package Project.PENBOT.Host.Entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Entity
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class BlockedDate {
 
     @Id
