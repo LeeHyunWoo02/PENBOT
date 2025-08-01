@@ -64,7 +64,7 @@ public class BookingService {
         boolean isBooked = bookingRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(end, start);
         boolean isBlocked = blockedDateRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(end, start); // BlockedDate 존재 여부
 
-        return (isBooked || isBlocked);
+        return !(isBooked || isBlocked);
 
     }
 
