@@ -10,12 +10,17 @@ import Project.PENBOT.Host.Dto.UserDetailResponseDTO;
 import Project.PENBOT.Host.Dto.UserListResponseDTO;
 import Project.PENBOT.Host.Service.HostService;
 import Project.PENBOT.User.Dto.UserResponseDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "호스트(관리자) API", description = "관리자용 예약 관리, 유저 관리 기능 제공")
 @RestController
 @RequestMapping("/api/hosts")
 public class HostController {
@@ -29,6 +34,11 @@ public class HostController {
     /**
      * 예약 상세 조회
      * */
+    @Operation(summary = "예약 상세 조회", description = "예약 ID로 예약 상세 정보를 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "예약 정보 조회 성공"),
+            @ApiResponse(responseCode = "404", description = "예약 정보 조회 실패")
+    })
     @GetMapping("/bookings/{bookingId}")
     public ResponseEntity<MyBookingResponseDTO> getBookingInfo(@PathVariable int bookingId){
         try{
@@ -47,6 +57,11 @@ public class HostController {
      * 날짜, 인원수 변경
      * 예약 상태 변경 ( 대기 -> 승인 )
      * */
+    @Operation(summary = "예약 수정", description = "예약의 날짜, 인원, 상태를 수정합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "예약 정보 수정 성공"),
+            @ApiResponse(responseCode = "400", description = "예약 정보 수정 실패")
+    })
     @PutMapping("/bookings/{bookingId}")
     public ResponseEntity<BookingResponseDTO> updateBooking(@PathVariable int bookingId,
                                                             @RequestBody BookingUpdateRequestDTO request){
@@ -68,6 +83,12 @@ public class HostController {
     /**
      * 예약 삭제
      * */
+    @Operation(summary = "예약 삭제", description = "예약 ID로 예약을 삭제합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "예약 삭제 성공"),
+            @ApiResponse(responseCode = "400", description = "예약 삭제 실패"),
+            @ApiResponse(responseCode = "404", description = "해당 예약 정보가 없습니다."),
+    })
     @DeleteMapping("/bookings/{bookingId}")
     public ResponseEntity<BookingResponseDTO> deleteBooking(@PathVariable int bookingId){
         try{
@@ -87,6 +108,8 @@ public class HostController {
     /**
      * 관리자 용 모든 유저 조회
      * */
+    @Operation(summary = "전체 유저 조회", description = "관리자가 전체 유저 목록을 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "유저 목록 반환")
     @GetMapping("/users")
     public ResponseEntity<List<UserListResponseDTO>> getAllUser(){
         List<UserListResponseDTO> allUsers = hostService.getAllUsers();
@@ -96,6 +119,8 @@ public class HostController {
     /**
      * 유저 상세 조회 ( 관리자용 )
      * */
+    @Operation(summary = "유저 상세 조회", description = "유저 ID로 상세 정보를 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "유저 정보 반환")
     @GetMapping("/users/{userId}")
     public ResponseEntity<UserDetailResponseDTO> getDetailUser(@PathVariable int userId){
         UserDetailResponseDTO responseDTO = hostService.getUserDetail(userId);
@@ -105,6 +130,11 @@ public class HostController {
     /**
      * 관리자 권한으로 유저 정보 삭제
      * */
+    @Operation(summary = "유저 삭제", description = "관리자 권한으로 유저를 삭제합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "유저 삭제 성공"),
+            @ApiResponse(responseCode = "400", description = "유저 삭제 실패")
+    })
     @DeleteMapping("/users/{userId}")
     public ResponseEntity<UserResponseDTO> deleteUser(@PathVariable int userId){
         try{
