@@ -11,6 +11,9 @@ import Project.PENBOT.CustomException.BookingNotFoundException;
 import Project.PENBOT.CustomException.ForbiddenCreateBookingException;
 import Project.PENBOT.CustomException.ForbiddenException;
 import Project.PENBOT.CustomException.UserNotFoundException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +30,12 @@ public class BookingController {
         this.chatLogService = chatLogService;
     }
 
+    @Operation(summary = "예약 생성", description = "예약을 생성하고 채팅 로그도 함께 저장합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "예약 성공"),
+            @ApiResponse(responseCode = "403", description = "이미 예약되어 있음"),
+            @ApiResponse(responseCode = "404", description = "해당 유저를 찾을 수 없음"),
+    })
     @PostMapping("/")
     public ResponseEntity<BookingResponseDTO> create(@RequestBody BookingRequestDTO requestDTO,
                                                      @RequestHeader(HttpHeaders.AUTHORIZATION) String auth) {
@@ -42,6 +51,11 @@ public class BookingController {
 
     }
 
+    @Operation(summary = "예약 가능 여부 확인", description = "입력된 날짜 범위 내에서 예약이 가능한지 확인합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "예약 가능 여부 확인 완료"),
+            @ApiResponse(responseCode = "400", description = "요청 오류")
+    })
     @GetMapping("/available")
     public ResponseEntity<BookingAvailableResponseDTO> isAvailable(@RequestBody BookingRequestDTO requestDTO) {
         try{
@@ -54,6 +68,11 @@ public class BookingController {
         }
     }
 
+    @Operation(summary = "예약 목록 조회", description = "로그인된 사용자의 모든 예약 정보를 반환합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "예약 목록 조회 성공"),
+            @ApiResponse(responseCode = "400", description = "요청 실패")
+    })
     @GetMapping("/myall")
     public ResponseEntity<MyBookingResponseDTO> getMyBookings(@RequestHeader(HttpHeaders.AUTHORIZATION) String auth){
         try {
@@ -67,6 +86,11 @@ public class BookingController {
         }
     }
 
+    @Operation(summary = "단일 예약 조회", description = "특정 예약 ID에 대한 예약 상세 정보를 반환합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "예약 정보 조회 성공"),
+            @ApiResponse(responseCode = "404", description = "해당 유저, 예약을 찾을 수 없음")
+    })
     @GetMapping("/{bookingId}")
     public ResponseEntity<MyBookingResponseDTO> getMyBooking(@RequestHeader(HttpHeaders.AUTHORIZATION) String auth,
                                                              @PathVariable int bookingId) {
@@ -81,6 +105,12 @@ public class BookingController {
         }
     }
 
+
+    @Operation(summary = "예약 삭제", description = "예약을 취소(삭제)합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "예약 삭제 성공"),
+            @ApiResponse(responseCode = "400", description = "예약 삭제 실패")
+    })
     @DeleteMapping("/{bookingId}/delete")
     public ResponseEntity<BookingResponseDTO> deleteBooking(@RequestHeader(HttpHeaders.AUTHORIZATION) String auth,
                                                              @PathVariable int bookingId) {
