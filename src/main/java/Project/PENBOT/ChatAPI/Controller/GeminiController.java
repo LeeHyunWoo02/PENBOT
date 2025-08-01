@@ -12,6 +12,12 @@ import Project.PENBOT.ChatAPI.Service.GooglePlacesService;
 import Project.PENBOT.ChatAPI.Service.RedisChatService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +28,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Slf4j
+@Tag(name = "Gemini 챗봇 API", description = "Gemini AI를 통한 펜션 예약 및 맛집 안내 챗봇 기능 제공")
 @RestController
 @RequestMapping("/api/gemini")
 public class GeminiController {
@@ -42,6 +49,20 @@ public class GeminiController {
         this.objectMapper = objectMapper;
     }
 
+    @Operation(
+            summary = "Gemini 챗봇에게 질문",
+            description = "사용자의 자연어 질문을 분석하여 예약 가능 여부 또는 맛집/카페 정보를 제공합니다. 예약 가능 시 직접 예약까지 수행합니다.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "사용자의 질문 텍스트",
+                    required = true,
+                    content = @Content(schema = @Schema(implementation = QueryRequestDTO.class))
+            )
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "정상 응답 (예약 정보 또는 맛집 안내 등)"),
+            @ApiResponse(responseCode = "400", description = "예약 불가 등 사용자 요청 오류"),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류")
+    })
     @PostMapping("/ask")
     public ResponseEntity<QueryResponseDTO> askGemini(@RequestBody QueryRequestDTO requestDTO,
                                                       @RequestHeader(HttpHeaders.AUTHORIZATION) String auth){
