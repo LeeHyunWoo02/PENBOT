@@ -7,11 +7,16 @@ import Project.PENBOT.User.Service.JoinService;
 import Project.PENBOT.User.Service.UserService;
 import Project.PENBOT.User.Util.JwtUtil;
 import io.jsonwebtoken.Claims;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "유저 API", description = "유저 정보 조회 및 수정 기능 제공")
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
@@ -27,6 +32,11 @@ public class UserController {
     }
 
 
+    @Operation(summary = "유저 정보 수정", description = "이름, 전화번호 등의 유저 정보를 수정하고, 갱신된 JWT 토큰을 반환합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "유저 정보 수정 성공"),
+            @ApiResponse(responseCode = "404", description = "유저를 찾을 수 없음")
+    })
     @PostMapping("/update")
     private ResponseEntity<JoinResponseDTO> UpdateUser(@RequestBody JoinUserReuqestDTO requestDTO,
                                                        @RequestHeader(HttpHeaders.AUTHORIZATION) String auth){
@@ -40,6 +50,11 @@ public class UserController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    @Operation(summary = "유저 정보 수정", description = "이름, 전화번호 등의 유저 정보를 수정하고, 갱신된 JWT 토큰을 반환합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "유저 정보 수정 성공"),
+            @ApiResponse(responseCode = "404", description = "유저를 찾을 수 없음")
+    })
     @GetMapping("/search")
     private ResponseEntity<UserSearchResponseDTO> SearchUser(@RequestHeader(HttpHeaders.AUTHORIZATION) String auth) {
         UserSearchResponseDTO responseDTO = userService.searchUser(auth);
