@@ -31,15 +31,11 @@ public class CustomOauth2SuccessHandler implements AuthenticationSuccessHandler 
         String role = userDetails.getAuthorities().iterator().next().getAuthority();
         String accessToken = jwtUtil.createAccessToken(loginId,role);
 
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.setContentType("application/json;charset=UTF-8");
 
-        Map<String, String> tokens = new HashMap<>();
-        tokens.put("accessToken", accessToken);
-        tokens.put("message","Authentication successful.");
-        response.getWriter().write(new ObjectMapper().writeValueAsString(tokens));
-        response.getWriter().flush();
-        response.getWriter().close();
+        // 프론트엔드 콜백 URL (환경에 따라 수정)
+        String redirectUrl = "http://localhost:5173/oauth2/redirect?accessToken=" + accessToken;
+
+        response.sendRedirect(redirectUrl);
 
     }
 }
