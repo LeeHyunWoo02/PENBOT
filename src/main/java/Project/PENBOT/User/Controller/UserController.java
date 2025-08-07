@@ -50,7 +50,7 @@ public class UserController {
         return ResponseEntity.ok(responseDTO);
     }
 
-    @Operation(summary = "유저 정보 수정", description = "이름, 전화번호 등의 유저 정보를 수정하고, 갱신된 JWT 토큰을 반환합니다.")
+    @Operation(summary = "유저 정보 조회", description = "유저 정보를 조회.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "유저 정보 수정 성공"),
             @ApiResponse(responseCode = "404", description = "유저를 찾을 수 없음")

@@ -87,7 +87,7 @@ public class SecurityConfig {
                             public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                                 CorsConfiguration config = new CorsConfiguration();
 
-                                config.setAllowedOrigins(Collections.singletonList("http://localhost:57584"));
+                                config.setAllowedOrigins(Collections.singletonList("http://localhost:5173"));
                                 config.setAllowedMethods(Collections.singletonList("*")); // 허용할 메소드 Get ect on
                                 config.setAllowCredentials(true);
                                 config.setAllowedHeaders(Collections.singletonList("*"));
