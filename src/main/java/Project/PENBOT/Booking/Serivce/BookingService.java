@@ -1,14 +1,11 @@
 package Project.PENBOT.Booking.Serivce;
 
 import Project.PENBOT.Booking.Converter.BookingConverter;
-import Project.PENBOT.CustomException.BookingNotFoundException;
-import Project.PENBOT.CustomException.ForbiddenCreateBookingException;
-import Project.PENBOT.CustomException.ForbiddenException;
+import Project.PENBOT.CustomException.*;
 import Project.PENBOT.Booking.Dto.BookingRequestDTO;
 import Project.PENBOT.Booking.Dto.MyBookingResponseDTO;
 import Project.PENBOT.Booking.Entity.Booking;
 import Project.PENBOT.Booking.Repository.BookingRepository;
-import Project.PENBOT.CustomException.UserNotFoundException;
 import Project.PENBOT.Host.Repository.BlockedDateRepository;
 import Project.PENBOT.User.Entity.User;
 import Project.PENBOT.User.Repository.UserRepository;
@@ -64,8 +61,10 @@ public class BookingService {
         boolean isBooked = bookingRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(end, start);
         boolean isBlocked = blockedDateRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(end, start); // BlockedDate 존재 여부
 
-        return !(isBooked || isBlocked);
-
+        if(isBooked || isBlocked){
+            throw new UnableBookingException();
+        }
+        return true;
     }
 
     public MyBookingResponseDTO getAllMyBooking(String auth){
