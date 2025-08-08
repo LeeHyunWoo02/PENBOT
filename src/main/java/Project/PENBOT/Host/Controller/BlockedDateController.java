@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 @Tag(name = "예약 차단 날짜 API", description = "관리자가 예약 불가 날짜를 생성, 조회, 삭제할 수 있는 API")
 @RestController
-@RequestMapping("/api/hosts")
+@RequestMapping("/api/host")
 public class BlockedDateController {
 
     private final HostService hostService;

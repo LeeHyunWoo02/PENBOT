@@ -10,6 +10,7 @@ import Project.PENBOT.CustomException.BlockedDateConflictException;
 import Project.PENBOT.CustomException.BookingNotFoundException;
 import Project.PENBOT.CustomException.UserNotFoundException;
 import Project.PENBOT.Host.Converter.BlockedDateConverter;
+import Project.PENBOT.Host.Converter.BookingAllConverter;
 import Project.PENBOT.Host.Dto.*;
 import Project.PENBOT.Host.Entity.BlockedDate;
 import Project.PENBOT.Host.Repository.BlockedDateRepository;
@@ -20,6 +21,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -39,6 +41,13 @@ public class HostService {
         this.userRepository = userRepository;
     }
 
+    public List<BookingListResponseDTO> getBookingAll(){
+        List<Booking> bookings = bookingRepository.findAll();
+        if (bookings.isEmpty()) {
+            throw new BookingNotFoundException("예약이 존재하지 않습니다.");
+        }
+        return BookingAllConverter.toDTO(bookings);
+    }
     /**
      * 예약 상세 조회
      * */
