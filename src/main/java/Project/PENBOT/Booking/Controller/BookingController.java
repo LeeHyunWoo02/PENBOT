@@ -7,10 +7,7 @@ import Project.PENBOT.Booking.Dto.MyBookingResponseDTO;
 import Project.PENBOT.Booking.Entity.Booking;
 import Project.PENBOT.Booking.Serivce.BookingService;
 import Project.PENBOT.ChatAPI.Service.ChatLogService;
-import Project.PENBOT.CustomException.BookingNotFoundException;
-import Project.PENBOT.CustomException.ForbiddenCreateBookingException;
-import Project.PENBOT.CustomException.ForbiddenException;
-import Project.PENBOT.CustomException.UserNotFoundException;
+import Project.PENBOT.CustomException.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -59,14 +56,16 @@ public class BookingController {
             @ApiResponse(responseCode = "400", description = "요청 오류")
     })
     @GetMapping("/available")
-    public ResponseEntity<BookingAvailableResponseDTO> isAvailable(@RequestBody BookingRequestDTO requestDTO) {
+    public ResponseEntity<BookingAvailableResponseDTO> isAvailable(@ModelAttribute BookingRequestDTO requestDTO) {
         try{
             bookingService.isAvailable(requestDTO);
             return ResponseEntity.ok(
-                    new BookingAvailableResponseDTO(true, "예약 가능 여부를 확인했습니다.")
+                    new BookingAvailableResponseDTO(true, "예약이 가능합니다..")
             );
-        } catch (Exception e){
+        } catch (UnableBookingException e){
             return ResponseEntity.badRequest().body(new BookingAvailableResponseDTO(false, e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(new BookingAvailableResponseDTO(false, e.getMessage()));
         }
     }
 
