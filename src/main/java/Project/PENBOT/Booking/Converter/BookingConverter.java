@@ -41,6 +41,16 @@ public class BookingConverter {
 
     }
 
+    public static BookingSimpleDTO toDTO(Booking booking) {
+        return BookingSimpleDTO.builder()
+                .startDate(booking.getStartDate().toString())
+                .endDate(booking.getEndDate().toString())
+                .status(booking.getStatus())
+                .headcount(booking.getHeadcount())
+                .name(booking.getUser().getName())
+                .phone(booking.getUser().getPhone())
+                .build();
+    }
     public static MyBookingResponseDTO toMyDto(Booking booking) {
 
         HashMap<String, BookingSimpleDTO> myBookings = new HashMap<>();

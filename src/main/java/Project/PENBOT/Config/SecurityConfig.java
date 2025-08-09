@@ -46,7 +46,8 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests((auth) -> auth
-//                        .requestMatchers("/api/hosts/**").hasRole("HOST")
+                        .requestMatchers("/api/host/**").hasRole("HOST")
+                        .requestMatchers("/api/bookings","/api/bookings/myall").hasRole("GUEST")
                         .requestMatchers("/**").permitAll()
                         .anyRequest().authenticated()
                 );

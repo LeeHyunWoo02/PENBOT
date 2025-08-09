@@ -1,5 +1,5 @@
 package Project.PENBOT.User.Entity;
 
 public enum Role {
-    GUEST, HOST, TEMP
+    ROLE_GUEST, ROLE_HOST, ROLE_TEMP
 }

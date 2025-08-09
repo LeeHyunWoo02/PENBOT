@@ -24,7 +24,7 @@ public class JwtUtil {
         return Jwts.builder()
                 .claim("category", "access")
                 .claim("userId", userId)
-                .claim("chatRole",role)
+                .claim("role",role)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRED))
                 .signWith(accesskey)

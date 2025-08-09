@@ -1,19 +1,18 @@
 package Project.PENBOT.Host.Controller;
 
 import Project.PENBOT.Booking.Dto.BookingResponseDTO;
+import Project.PENBOT.Booking.Dto.BookingSimpleDTO;
 import Project.PENBOT.Booking.Dto.MyBookingResponseDTO;
 import Project.PENBOT.CustomException.BookingNotFoundException;
 import Project.PENBOT.CustomException.UserNotFoundException;
-import Project.PENBOT.Host.Dto.BlockedDateResponseDTO;
-import Project.PENBOT.Host.Dto.BookingUpdateRequestDTO;
-import Project.PENBOT.Host.Dto.UserDetailResponseDTO;
-import Project.PENBOT.Host.Dto.UserListResponseDTO;
+import Project.PENBOT.Host.Dto.*;
 import Project.PENBOT.Host.Service.HostService;
 import Project.PENBOT.User.Dto.UserResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,13 +21,27 @@ import java.util.List;
 
 @Tag(name = "호스트(관리자) API", description = "관리자용 예약 관리, 유저 관리 기능 제공")
 @RestController
-@RequestMapping("/api/hosts")
+@RequestMapping("/api/host")
 public class HostController {
 
     private final HostService hostService;
 
     public HostController(HostService hostService) {
         this.hostService = hostService;
+    }
+
+    /**
+     * 예약 모든 내역 조회
+     * */
+    @Operation(summary = "예약 모든 내역 조회", description = "예약 모든 내역을 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "예약 정보 조회 성공"),
+            @ApiResponse(responseCode = "404", description = "예약 정보 조회 실패")
+    })
+    @GetMapping("/bookings")
+    public ResponseEntity<List<BookingListResponseDTO>> getAllBookings(){
+        List<BookingListResponseDTO> response = hostService.getBookingAll();
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -40,16 +53,9 @@ public class HostController {
             @ApiResponse(responseCode = "404", description = "예약 정보 조회 실패")
     })
     @GetMapping("/bookings/{bookingId}")
-    public ResponseEntity<MyBookingResponseDTO> getBookingInfo(@PathVariable int bookingId){
-        try{
-            MyBookingResponseDTO responseDTO = hostService.getBookingInfo(bookingId);
-            responseDTO.setSuccess(true);
-            responseDTO.setMessage("예약 정보를 성공적으로 가져왔습니다.");
-            return ResponseEntity.ok(responseDTO);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new MyBookingResponseDTO(false, null
-                    ,"예약 정보를 가져오는 데 실패했습니다: " + e.getMessage()));
-        }
+    public ResponseEntity<BookingSimpleDTO> getBookingInfo(@PathVariable int bookingId){
+        BookingSimpleDTO responseDTO = hostService.getBookingInfo(bookingId);
+        return ResponseEntity.ok(responseDTO);
     }
 
     /**

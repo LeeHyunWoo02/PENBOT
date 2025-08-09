@@ -8,11 +8,13 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 
 public class JwtFilter extends OncePerRequestFilter {
 
@@ -52,8 +54,13 @@ public class JwtFilter extends OncePerRequestFilter {
          * Security 인증 객체를 생성하여 SecurityContextHolder에 저장
          * */
         if(SecurityContextHolder.getContext().getAuthentication() == null) {
+            String role = claims.get("role", String.class);
+
+            List<SimpleGrantedAuthority> authorities = Collections.singletonList(
+                    new SimpleGrantedAuthority(role)
+            );
             UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userId, null,
-                    Collections.emptyList());
+                    authorities);
             SecurityContextHolder.getContext().setAuthentication(token);
         }
         filterChain.doFilter(request, response);

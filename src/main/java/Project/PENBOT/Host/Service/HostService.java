@@ -2,7 +2,7 @@ package Project.PENBOT.Host.Service;
 
 import Project.PENBOT.Booking.Converter.BookingConverter;
 import Project.PENBOT.Booking.Dto.BookingResponseDTO;
-import Project.PENBOT.Booking.Dto.MyBookingResponseDTO;
+import Project.PENBOT.Booking.Dto.BookingSimpleDTO;
 import Project.PENBOT.Booking.Entity.BookStatus;
 import Project.PENBOT.Booking.Entity.Booking;
 import Project.PENBOT.Booking.Repository.BookingRepository;
@@ -10,6 +10,7 @@ import Project.PENBOT.CustomException.BlockedDateConflictException;
 import Project.PENBOT.CustomException.BookingNotFoundException;
 import Project.PENBOT.CustomException.UserNotFoundException;
 import Project.PENBOT.Host.Converter.BlockedDateConverter;
+import Project.PENBOT.Host.Converter.BookingAllConverter;
 import Project.PENBOT.Host.Dto.*;
 import Project.PENBOT.Host.Entity.BlockedDate;
 import Project.PENBOT.Host.Repository.BlockedDateRepository;
@@ -17,6 +18,7 @@ import Project.PENBOT.User.Dto.UserResponseDTO;
 import Project.PENBOT.User.Entity.User;
 import Project.PENBOT.User.Repository.UserRepository;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -26,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class HostService {
 
@@ -39,17 +42,24 @@ public class HostService {
         this.userRepository = userRepository;
     }
 
+    public List<BookingListResponseDTO> getBookingAll(){
+        List<Booking> bookings = bookingRepository.findAll();
+        if (bookings.isEmpty()) {
+            throw new BookingNotFoundException("예약이 존재하지 않습니다.");
+        }
+        return BookingAllConverter.toDTO(bookings);
+    }
     /**
      * 예약 상세 조회
      * */
-    public MyBookingResponseDTO getBookingInfo( int bookingId) {
+    public BookingSimpleDTO getBookingInfo(int bookingId) {
 
         Optional<Booking> bookingOptional = bookingRepository.findById(bookingId);
         if (bookingOptional.isEmpty()) {
             throw new BookingNotFoundException();
         }
 
-        return BookingConverter.toMyDto(bookingOptional.get());
+        return BookingConverter.toDTO(bookingOptional.get());
     }
 
     /**
@@ -113,7 +123,8 @@ public class HostService {
     @Transactional
     public BlockedDateResponseDTO createBlockedDate(BlockDateRequestDTO requestDTO) {
 
-        if (!isAvailable(requestDTO.getEndDate(), requestDTO.getStartDate())) {
+        if (isAvailable(requestDTO.getEndDate(), requestDTO.getStartDate())) {
+            log.error("차단 날짜가 이미 예약된 날짜와 겹칩니다: {} ~ {}", requestDTO.getStartDate(), requestDTO.getEndDate());
             throw new BlockedDateConflictException();
         }
 
@@ -129,6 +140,16 @@ public class HostService {
     }
 
     /**
+     * 관리자 차단 날짜 모두 조회
+     * */
+    public List<UnavailableDateDTO> getHostBlockedDates(){
+        List<UnavailableDateDTO> unavailableDates = new ArrayList<>();
+        List<BlockedDate> blockedDates = blockedDateRepository.findAll();
+        SemiBlockDateConverter(blockedDates, unavailableDates);
+        return unavailableDates;
+    }
+
+    /**
      * 불가능한 날짜 모두 조회
      * */
     public List<UnavailableDateDTO> getUnavailableDates() {
@@ -137,25 +158,11 @@ public class HostService {
         // 예약된 날짜 → BOOKED
         List<BookStatus> statuses = Arrays.asList(BookStatus.CONFIRMED, BookStatus.PENDING);
         List<Booking> bookings = bookingRepository.findAllByStatusIn(statuses); // 예약 확정된 것만
-        for (Booking booking : bookings) {
-            unavailableDates.add(UnavailableDateDTO.builder()
-                    .startDate(booking.getStartDate())
-                    .endDate(booking.getEndDate())
-                    .reason(booking.getStatus() == BookStatus.PENDING ? "예약 대기 중" : "예약 확정")
-                    .type("BOOKED")
-                    .build());
-        }
+        SemiBookingsConverter(bookings, unavailableDates);
 
         // 차단된 날짜 → BLOCKED
         List<BlockedDate> blockedDates = blockedDateRepository.findAll();
-        for (BlockedDate blocked : blockedDates) {
-            unavailableDates.add(UnavailableDateDTO.builder()
-                    .startDate(blocked.getStartDate())
-                    .endDate(blocked.getEndDate())
-                    .reason(blocked.getReason())
-                    .type("BLOCKED")
-                    .build());
-        }
+        SemiBlockDateConverter(blockedDates, unavailableDates);
 
         return unavailableDates;
     }
@@ -181,7 +188,7 @@ public class HostService {
         }
         return users.stream()
                 .map(user -> UserListResponseDTO.builder()
-                        .id(user.getId())
+                        .userId(user.getId())
                         .name(user.getName())
                         .email(user.getEmail())
                         .phone(user.getPhone())
@@ -212,6 +219,28 @@ public class HostService {
         boolean isBlocked = blockedDateRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(endDate, startDate); // BlockedDate 존재 여부
 
         return (isBooked || isBlocked);
+    }
 
+    private static void SemiBookingsConverter(List<Booking> bookings, List<UnavailableDateDTO> unavailableDates) {
+        for (Booking booking : bookings) {
+            unavailableDates.add(UnavailableDateDTO.builder()
+                    .startDate(booking.getStartDate())
+                    .endDate(booking.getEndDate())
+                    .reason(booking.getStatus() == BookStatus.PENDING ? "예약 대기 중" : "예약 확정")
+                    .type("BOOKED")
+                    .build());
+        }
+    }
+
+    private static void SemiBlockDateConverter(List<BlockedDate> blockedDates, List<UnavailableDateDTO> unavailableDates) {
+        for (BlockedDate blocked : blockedDates) {
+            unavailableDates.add(UnavailableDateDTO.builder()
+                    .blockedDateId(blocked.getId())
+                    .startDate(blocked.getStartDate())
+                    .endDate(blocked.getEndDate())
+                    .reason(blocked.getReason())
+                    .type("BLOCKED")
+                    .build());
+        }
     }
 }

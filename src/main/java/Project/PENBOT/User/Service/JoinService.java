@@ -48,7 +48,7 @@ public class JoinService {
         try{
             User user = userRepository.findById(userId);
             user.setPassword(passwordEncoder.encode(password));
-            user.setRole(Role.GUEST);
+            user.setRole(Role.ROLE_GUEST);
             return userRepository.save(user);
         } catch (UserNotFoundException e){
             throw new UserNotFoundException();

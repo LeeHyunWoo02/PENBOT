@@ -45,7 +45,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
         String email = oAuth2UserInfo.getEmail();
         String mobile = oAuth2UserInfo.getMobile();
-        String role = Role.TEMP.name();
+        String role = Role.ROLE_TEMP.name();
         String name = oAuth2UserInfo.getName();
 
         JoinTempUserDTO dto = new JoinTempUserDTO(name, null, mobile, email,
