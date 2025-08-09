@@ -188,7 +188,7 @@ public class HostService {
         }
         return users.stream()
                 .map(user -> UserListResponseDTO.builder()
-                        .id(user.getId())
+                        .userId(user.getId())
                         .name(user.getName())
                         .email(user.getEmail())
                         .phone(user.getPhone())
