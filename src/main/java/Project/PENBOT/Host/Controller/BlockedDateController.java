@@ -33,14 +33,25 @@ public class BlockedDateController {
     @Operation(summary = "예약 차단 날짜 등록", description = "관리자가 예약을 차단하고자 하는 날짜를 등록합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "예약 차단 날짜 생성 성공"),
-            @ApiResponse(responseCode = "403", description = "이미 예약된 날짜와 겹쳐 생성 실패")
+            @ApiResponse(responseCode = "400", description = "이미 예약된 날짜와 겹쳐 생성 실패")
     })
     @PostMapping("/blocks")
     public ResponseEntity<BlockedDateResponseDTO> createdBlockedDate(@RequestBody BlockDateRequestDTO requestDTO){
         BlockedDateResponseDTO responseDTO = hostService.createBlockedDate(requestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
-    
+
+    /**
+     * 관리자가 차단한 날짜 모두 조회
+     * */
+    @Operation(summary = "관리자가 차단한 날짜 조회", description = "관리자가 차단한 날짜를 모두 반환합니다.")
+    @ApiResponse(responseCode = "200", description = "관리자가 차단한 날짜 목록 조회 성공")
+    @GetMapping("/blocks")
+    public ResponseEntity<List<UnavailableDateDTO>> getBlockedDates(){
+        List<UnavailableDateDTO> responseDTO = hostService.getHostBlockedDates();
+        return ResponseEntity.ok(responseDTO);
+    }
+
     /**
      * 지금까지 예약 불가능한 날짜 모두 조회
      * */
@@ -68,7 +79,7 @@ public class BlockedDateController {
 
     @ExceptionHandler(BlockedDateConflictException.class)
     public ResponseEntity<BlockedDateResponseDTO> handleBlockedDateConflict(BlockedDateConflictException ex){
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+        return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(new BlockedDateResponseDTO(false, ex.getMessage(), 0));
     }
 

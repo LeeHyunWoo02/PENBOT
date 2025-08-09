@@ -1,6 +1,7 @@
 package Project.PENBOT.Host.Controller;
 
 import Project.PENBOT.Booking.Dto.BookingResponseDTO;
+import Project.PENBOT.Booking.Dto.BookingSimpleDTO;
 import Project.PENBOT.Booking.Dto.MyBookingResponseDTO;
 import Project.PENBOT.CustomException.BookingNotFoundException;
 import Project.PENBOT.CustomException.UserNotFoundException;
@@ -52,16 +53,9 @@ public class HostController {
             @ApiResponse(responseCode = "404", description = "예약 정보 조회 실패")
     })
     @GetMapping("/bookings/{bookingId}")
-    public ResponseEntity<MyBookingResponseDTO> getBookingInfo(@PathVariable int bookingId){
-        try{
-            MyBookingResponseDTO responseDTO = hostService.getBookingInfo(bookingId);
-            responseDTO.setSuccess(true);
-            responseDTO.setMessage("예약 정보를 성공적으로 가져왔습니다.");
-            return ResponseEntity.ok(responseDTO);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new MyBookingResponseDTO(false, null
-                    ,"예약 정보를 가져오는 데 실패했습니다: " + e.getMessage()));
-        }
+    public ResponseEntity<BookingSimpleDTO> getBookingInfo(@PathVariable int bookingId){
+        BookingSimpleDTO responseDTO = hostService.getBookingInfo(bookingId);
+        return ResponseEntity.ok(responseDTO);
     }
 
     /**
