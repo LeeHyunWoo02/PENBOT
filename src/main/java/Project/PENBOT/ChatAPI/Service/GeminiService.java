@@ -2,6 +2,7 @@ package Project.PENBOT.ChatAPI.Service;
 
 import Project.PENBOT.ChatAPI.Dto.*;
 import Project.PENBOT.ChatAPI.Entity.ChatRole;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class GeminiService {
     public static final String GEMINI_FLASH = "gemini-1.5-flash";
@@ -25,10 +27,28 @@ public class GeminiService {
         this.googlePlacesService = googlePlacesService;
     }
     public String getCompletion(String text, String auth){
+
+        String userText = text == null ? "" : text.trim();
+
+        // 1) 주소/위치 질문이면 → Google Places Text Search로 바로 응답 (Gemini 불필요)
+        if (isAddressQuestion(userText)) {
+            log.info("주소/위치 질문 감지");
+            Optional<QueryResponseDTO> responseDTO = googlePlacesService.findPlaceAddressByText();
+            if (responseDTO.isPresent()) {
+                String reply = String.format(
+                        "라온아띠 펜션 위치 안내입니다.\n\n" +
+                                "• 주소: %s\n", responseDTO.get().getResult());
+                return reply;
+            } else {
+                return "죄송합니다. 현재 라온아띠 펜션 주소를 확인하지 못했습니다. 잠시 후 다시 시도해 주세요.";
+            }
+        }
+
         // 사용자 질문이 장소 추천 관련인지 확인
-        if (isPlaceRecommendQuestion(text)){
-            String place = extractPlaceType(text);
-            List<PlaceInfoDTO> places = googlePlacesService.searchNearby(place, place);
+        if (isPlaceRecommendQuestion(userText)){
+            String place = extractPlaceType(userText);
+            log.info("장소 추천 질문 감지: {}", place);
+            List<PlaceInfoDTO> places = googlePlacesService.searchNearby(place);
             String placePrompt = makePlaceRecommendPrompt(places, text);
 
             GeminiRequestDTO placeRequest = buildSinglePrompt(placePrompt);
@@ -41,7 +61,7 @@ public class GeminiService {
                             .stream()
                             .findFirst()
                             .map(part -> Optional.ofNullable(((TextPart) part).getText()).orElse(null)))
-                    .orElse(null);
+                    .orElse("추천 결과를 생성하지 못했습니다. 잠시 후 다시 시도해 주세요.");
         }
 
         // 일반 예약 관련 질문 처리
@@ -81,13 +101,7 @@ public class GeminiService {
                         "   - 예시 3) 예약 요청(모든 정보):\n" +
                         "     User: 8월 25일부터 27일까지 3명 예약 신청\n" +
                         "     → { \"startDate\": \"2024-08-25\", \"endDate\": \"2024-08-27\", \"headcount\": 3 }\n" +
-                        "     안내문구: \"예약이 완료되었습니다.\"\n" +
-                        "2. **예약과 무관한 일반 질문**(예: 펜션 위치, 체크인 시간, 날씨, 교통 등)일 경우:\n" +
-                        "   - JSON은 반환하지 말고, 자연어 답변만 하세요.\n" +
-                        "   - 우리 펜션은 대부도 라온아띠 펜션이야. 해당 정보를 고려해서 답변해줘.\n" +
-                        "   - 예시:\n" +
-                        "     User: 펜션 위치가 어디야?\n" +
-                        "     → 안내문구: \"저희 펜션은 강원도 속초시에 위치해 있습니다.\"\n";
+                        "     안내문구: \"예약이 완료되었습니다.\"\n";
 
 
         contents.add(new Content(ChatRole.USER, List.of(new TextPart(promptText))));
@@ -106,11 +120,18 @@ public class GeminiService {
         return request;
     }
 
-    // 장소 추천 질문 판별
+    // 질문 의도 판별
     private boolean isPlaceRecommendQuestion(String text) {
         String t = text.toLowerCase();
         return t.contains("맛집") || t.contains("카페") || t.contains("관광지") ||
                 t.contains("근처") || t.contains("주변") || t.contains("놀거리");
+    }
+
+    private boolean isAddressQuestion(String text) {
+        String t = text == null ? "" : text.toLowerCase();
+        return t.contains("주소") || t.contains("위치") || t.contains("어디") ||
+                t.contains("찾아오는 길") || t.contains("오시는 길") || t.contains("지도") ||
+                t.contains("펜션 위치") || t.contains("펜션 주소");
     }
 
     // 장소 유형 추출
