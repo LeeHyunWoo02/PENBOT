@@ -1,15 +1,14 @@
 package Project.PENBOT.ChatAPI.Controller;
 import Project.PENBOT.Booking.Dto.BookingRequestDTO;
 import Project.PENBOT.Booking.Serivce.BookingService;
-import Project.PENBOT.ChatAPI.Dto.ChatMessageDTO;
-import Project.PENBOT.ChatAPI.Dto.PlaceInfoDTO;
-import Project.PENBOT.ChatAPI.Dto.QueryRequestDTO;
-import Project.PENBOT.ChatAPI.Dto.QueryResponseDTO;
+import Project.PENBOT.ChatAPI.Dto.*;
 import Project.PENBOT.ChatAPI.Entity.ChatRole;
 import Project.PENBOT.ChatAPI.Service.ChatLogService;
 import Project.PENBOT.ChatAPI.Service.GeminiService;
 import Project.PENBOT.ChatAPI.Service.GooglePlacesService;
 import Project.PENBOT.ChatAPI.Service.RedisChatService;
+import Project.PENBOT.CustomException.UnableBookingException;
+import Project.PENBOT.CustomException.UserNotFoundException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,10 +19,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -60,24 +61,46 @@ public class GeminiController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "정상 응답 (예약 정보 또는 맛집 안내 등)"),
-            @ApiResponse(responseCode = "400", description = "예약 불가 등 사용자 요청 오류"),
+            @ApiResponse(responseCode = "404", description = "예약 불가 등 사용자 요청 오류"),
             @ApiResponse(responseCode = "500", description = "서버 내부 오류")
     })
     @PostMapping("/ask")
     public ResponseEntity<QueryResponseDTO> askGemini(@RequestBody QueryRequestDTO requestDTO,
                                                       @RequestHeader(HttpHeaders.AUTHORIZATION) String auth){
+        log.info("GeminiController.askGemini() 호출");
         // ChatLog에 질문 저장 && Redis에 질문 저장
         chatLogService.saveUserChat(auth, requestDTO);
         ChatMessageDTO chatMessageDTO= new ChatMessageDTO(ChatRole.USER, requestDTO.getText());
         redisChatService.addChatMessage(auth, chatMessageDTO);
 
         String userText = requestDTO.getText();
-        String lower = userText.toLowerCase();
+        String lower = userText == null ? "" : userText.toLowerCase().trim();
+
+        String responseMsg;
+        
+        // 위치 / 주소 문의 => Goolge Places TextSearch로 즉시 응답
+        if (isAddressQuestion(lower)) {
+            Optional<QueryResponseDTO> opt = googlePlacesService.findPlaceAddressByText();
+            if (opt.isPresent()) {
+                QueryResponseDTO p = opt.get();
+                responseMsg = String.format(
+                        "라온아띠 펜션 위치 안내입니다.\n\n" +
+                                "• 주소: %s\n", p.getResult());
+                log.info(responseMsg);
+            } else {
+                responseMsg = "죄송합니다. 현재 라온아띠 펜션 주소를 확인하지 못했습니다. 잠시 후 다시 시도해 주세요.";
+            }
+            // 저장 + 반환
+            chatLogService.saveBotChat(auth, responseMsg);
+            redisChatService.addChatMessage(auth, new ChatMessageDTO(ChatRole.MODEL, responseMsg));
+            return ResponseEntity.ok(new QueryResponseDTO(responseMsg));
+        }
+        
+        // 맛집 / 카페 등 주변 추천
         if (lower.contains("맛집") || lower.contains("카페")) {
-            // type은 google api docs 참고 (restaurant, cafe 등)
             String keyword = lower.contains("카페") ? "카페" : "맛집";
             String type = lower.contains("카페") ? "cafe" : "restaurant";
-            List<PlaceInfoDTO> places = googlePlacesService.searchNearby(keyword, type);
+            List<PlaceInfoDTO> places = googlePlacesService.searchNearby(type);
 
             // 결과가 없으면 안내, 있으면 Top 5 안내
             String resultMsg = formatPlaceResult(places, keyword);
@@ -91,10 +114,11 @@ public class GeminiController {
         }
 
 
-        // Gemini API 호출
+        // 그 외 Gemini API 호출
         String answer = geminiService.getCompletion(requestDTO.getText(), auth);
+        log.info("Gemini API 응답: {}", answer);
 
-        // JSON 추출 & BookingRequestDTO 파싱
+        // JSON 추출 & BookingRequestDTO 파싱 ( 예약 분기 )
         Pattern jsonPattern = Pattern.compile("\\{[\\s\\S]+?\\}");
         Matcher matcher = jsonPattern.matcher(answer);
         String json = null;
@@ -117,7 +141,7 @@ public class GeminiController {
         chatLogService.saveBotChat(auth, answer);
         ChatMessageDTO chatMessageDTO2 = new ChatMessageDTO(ChatRole.MODEL, answer);
         redisChatService.addChatMessage(auth, chatMessageDTO2);
-        String responseMsg = answer;
+        responseMsg = answer;
 
         // 예약 관련(JSON 추출 성공) → 예약/예약
         if (bookingRequestDTO != null
@@ -179,5 +203,23 @@ public class GeminiController {
                     .append("- ").append(p.getAddress()).append("\n");
         }
         return sb.toString();
+    }
+    private boolean isAddressQuestion(String lower) {
+        if (lower == null) return false;
+        return lower.contains("주소") || lower.contains("위치") || lower.contains("어디") ||
+                lower.contains("찾아오는 길") || lower.contains("오시는 길") ||
+                lower.contains("지도") || lower.contains("펜션 위치") || lower.contains("펜션 주소");
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<QueryResponseDTO> handleUserNotFound(UserNotFoundException ex) {
+        log.error(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new QueryResponseDTO(ex.getMessage()));
+    }
+
+    @ExceptionHandler(UnableBookingException.class)
+    public ResponseEntity<QueryResponseDTO> handleUserNotFound(UnableBookingException ex) {
+        log.error(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new QueryResponseDTO(ex.getMessage()));
     }
 }

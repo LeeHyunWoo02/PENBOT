@@ -22,9 +22,8 @@ public class GooglePlaceController {
 
     @GetMapping("/search")
     public List<PlaceInfoDTO> searchNearbyPlaces(
-            @RequestParam String keyword,
             @RequestParam String type
     ) {
-        return googlePlacesService.searchNearby(keyword, type);
+        return googlePlacesService.searchNearby(type);
     }
 }

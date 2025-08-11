@@ -1,18 +1,20 @@
 package Project.PENBOT.ChatAPI.Service;
 
 import Project.PENBOT.ChatAPI.Dto.PlaceInfoDTO;
+import Project.PENBOT.ChatAPI.Dto.QueryResponseDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+@Slf4j
 @Service
 public class GooglePlacesService {
 
@@ -24,21 +26,20 @@ public class GooglePlacesService {
     // 대부도 라온아띠 펜션 위도/경도
     private static final double LATITUDE = 37.207361;
     private static final double LONGITUDE = 126.568450;
-    private static final int RADIUS = 10000;
+    private static final int RADIUS = 15000;
 
     public GooglePlacesService(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
-    public List<PlaceInfoDTO> searchNearby(String keyword, String type) {
+    public List<PlaceInfoDTO> searchNearby(String type) {
         String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?" +
                 "location=" + LATITUDE + "," + LONGITUDE +
                 "&radius=" + RADIUS +
                 "&type=" + type +
-                "&keyword=" + URLEncoder.encode(keyword, StandardCharsets.UTF_8) +
                 "&language=ko" +
                 "&key=" + apiKey;
-
+        log.info("Google Places API URL: " + url);
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
 
@@ -56,16 +57,19 @@ public class GooglePlacesService {
                         result.add(new PlaceInfoDTO(name, rating, address));
                     }
                 }
-                System.out.println("Google Places API Response: " + response.getBody());
-                System.out.println(result);
+                log.info("Google Places API Response: " + response.getBody());
                 return result;
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        System.out.println("Google Places API Response: " + response.getBody());
-        System.out.println(result);
+        log.info("Google Places API Response: " + response.getBody());
+
         return result;
+    }
+
+    public Optional<QueryResponseDTO> findPlaceAddressByText() {
+        return Optional.of(new QueryResponseDTO("안산시 단원구 멍골 길 10-1"));
     }
 
 }
