@@ -3,16 +3,8 @@ services:
     build: .
     ports:
       - 8080:8080
-    environment:
-      COOLSMS_API_KEY: ${COOLSMS_API_KEY}
-      COOLSMS_API_SECRET: ${COOLSMS_API_SECRET}
-      COOLSMS_NUMBER: ${COOLSMS_NUMBER}
-      DB_PASSWORD: ${DB_PASSWORD}
-      GEMINI_API_KEY: ${GEMINI_API_KEY}
-      GOOGLE_PLACES_API_KEY: ${GOOGLE_PLACES_API_KEY}
-      JWT_ACCESS_CODE: ${JWT_ACCESS_CODE}
-      NAVER_CLIENT_ID: ${NAVER_CLIENT_ID}
-      NAVER_CLIENT_SECRET: ${NAVER_CLIENT_SECRET}
+    env_file:
+      - src/main/resources/env.properties
     depends_on:
       my-db-server:
         condition: service_healthy
