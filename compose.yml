@@ -13,8 +13,10 @@ services:
   my-db-server:
     image: mysql
     environment:
-      DB_PASSWORD: "0824Hyoun@@"
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: penbot
+      MYSQL_USER: penbot
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - ./mysql_data:/var/lib/mysql
     ports:
