@@ -3,9 +3,34 @@ services:
     build: .
     ports:
       - 8080:8080
+    environment:
+      COOLSMS_API_KEY: ${COOLSMS_API_KEY}
+      COOLSMS_API_SECRET: ${COOLSMS_API_SECRET}
+      COOLSMS_NUMBER: ${COOLSMS_NUMBER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      GOOGLE_PLACES_API_KEY: ${GOOGLE_PLACES_API_KEY}
+      JWT_ACCESS_CODE: ${JWT_ACCESS_CODE}
+      NAVER_CLIENT_ID: ${NAVER_CLIENT_ID}
+      NAVER_CLIENT_SECRET: ${NAVER_CLIENT_SECRET}
     depends_on:
+      my-db-server:
+        condition: service_healthy
       my-cache-server:
         condition: service_healthy
+  my-db-server:
+    image: mysql
+    environment:
+      DB_PASSWORD: "0824Hyoun@@"
+      MYSQL_DATABASE: penbot
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+    ports:
+      - 3307:3306  # 호스트에서 접속할 때만 사용 (컨테이너 간에는 3306)
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p0824Hyoun@@"]
+      interval: 5s
+      retries: 10
   my-cache-server:
     image: redis
     ports:
