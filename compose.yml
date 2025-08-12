@@ -5,6 +5,7 @@ services:
       - 8080:8080
     env_file:
       - src/main/resources/env.properties
+      - compose.env
     depends_on:
       my-db-server:
         condition: service_healthy
