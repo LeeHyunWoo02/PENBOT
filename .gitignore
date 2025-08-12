@@ -10,6 +10,7 @@ src/main/resources/env.properties
 ### STS ###
 .apt_generated
 .classpath
+compose.env
 .factorypath
 .project
 .settings
