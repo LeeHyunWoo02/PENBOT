@@ -18,7 +18,7 @@ import java.util.Optional;
 @Service
 public class GooglePlacesService {
 
-    @Value("${google.places.api.key}")
+    @Value("${spring.ai.places.api-key}")
     private String apiKey;
     private final ObjectMapper objectMapper;
 

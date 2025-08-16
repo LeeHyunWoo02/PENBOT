@@ -5,27 +5,9 @@ services:
       - 8080:8080
     env_file:
       - src/main/resources/env.properties
-      - compose.env
     depends_on:
-      my-db-server:
-        condition: service_healthy
       my-cache-server:
         condition: service_healthy
-  my-db-server:
-    image: mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: penbot
-      MYSQL_USER: penbot
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-    volumes:
-      - ./mysql_data:/var/lib/mysql
-    ports:
-      - 3307:3306  # 호스트에서 접속할 때만 사용 (컨테이너 간에는 3306)
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p0824Hyoun@@"]
-      interval: 5s
-      retries: 10
   my-cache-server:
     image: redis
     ports:
