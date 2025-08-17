@@ -64,7 +64,6 @@ public class HostService {
 
     /**
      * 예약 업데이트
-     * 날짜, 인원수 변경
      * 예약 상태 변경 ( 대기 -> 승인 )
      * */
     @Transactional
@@ -72,12 +71,7 @@ public class HostService {
 
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(BookingNotFoundException::new);
 
-        Booking.builder()
-                .status(requestDTO.getStatus())
-                .headcount(requestDTO.getHeadcount())
-                .endDate(requestDTO.getEndDate())
-                .startDate(requestDTO.getStartDate())
-                .build();
+        booking.setStatus(requestDTO.getStatus());
 
         bookingRepository.save(booking);
         return BookingResponseDTO.builder()
@@ -243,4 +237,5 @@ public class HostService {
                     .build());
         }
     }
+
 }

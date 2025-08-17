@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import java.util.List;
 
 @Tag(name = "호스트(관리자) API", description = "관리자용 예약 관리, 유저 관리 기능 제공")
 @RestController
+@Slf4j
 @RequestMapping("/api/host")
 public class HostController {
 
@@ -73,6 +75,7 @@ public class HostController {
                                                             @RequestBody BookingUpdateRequestDTO request){
         try{
             BookingResponseDTO responseDTO = hostService.updateBooking(bookingId, request);
+            log.info("예약 정보 업데이트 성공: {}", responseDTO);
             return ResponseEntity.ok(responseDTO);
 
         }catch (Exception e) {
