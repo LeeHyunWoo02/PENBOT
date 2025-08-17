@@ -8,6 +8,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class BookingSimpleDTO {
+    private int bookingId;
     private String startDate;
     private String endDate;
     private int headcount;
