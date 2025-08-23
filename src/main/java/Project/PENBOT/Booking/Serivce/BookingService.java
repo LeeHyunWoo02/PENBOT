@@ -12,13 +12,11 @@ import Project.PENBOT.User.Repository.UserRepository;
 import Project.PENBOT.User.Util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.transaction.Transactional;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
-@Slf4j
 @Service
 public class BookingService {
 
