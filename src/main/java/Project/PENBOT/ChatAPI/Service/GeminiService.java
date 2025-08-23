@@ -2,7 +2,6 @@ package Project.PENBOT.ChatAPI.Service;
 
 import Project.PENBOT.ChatAPI.Dto.*;
 import Project.PENBOT.ChatAPI.Entity.ChatRole;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Slf4j
 @Service
 public class GeminiService {
     public static final String GEMINI_FLASH = "gemini-1.5-flash";
@@ -32,7 +30,6 @@ public class GeminiService {
 
         // 1) 주소/위치 질문이면 → Google Places Text Search로 바로 응답 (Gemini 불필요)
         if (isAddressQuestion(userText)) {
-            log.info("주소/위치 질문 감지");
             Optional<QueryResponseDTO> responseDTO = googlePlacesService.findPlaceAddressByText();
             if (responseDTO.isPresent()) {
                 String reply = String.format(
@@ -47,7 +44,6 @@ public class GeminiService {
         // 사용자 질문이 장소 추천 관련인지 확인
         if (isPlaceRecommendQuestion(userText)){
             String place = extractPlaceType(userText);
-            log.info("장소 추천 질문 감지: {}", place);
             List<PlaceInfoDTO> places = googlePlacesService.searchNearby(place);
             String placePrompt = makePlaceRecommendPrompt(places, text);
 

@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 public class HostService {
 
@@ -118,7 +117,6 @@ public class HostService {
     public BlockedDateResponseDTO createBlockedDate(BlockDateRequestDTO requestDTO) {
 
         if (isAvailable(requestDTO.getEndDate(), requestDTO.getStartDate())) {
-            log.error("차단 날짜가 이미 예약된 날짜와 겹칩니다: {} ~ {}", requestDTO.getStartDate(), requestDTO.getEndDate());
             throw new BlockedDateConflictException();
         }
 

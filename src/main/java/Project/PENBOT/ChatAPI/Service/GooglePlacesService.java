@@ -4,7 +4,6 @@ import Project.PENBOT.ChatAPI.Dto.PlaceInfoDTO;
 import Project.PENBOT.ChatAPI.Dto.QueryResponseDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -14,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Slf4j
 @Service
 public class GooglePlacesService {
 
@@ -39,7 +37,6 @@ public class GooglePlacesService {
                 "&type=" + type +
                 "&language=ko" +
                 "&key=" + apiKey;
-        log.info("Google Places API URL: " + url);
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
 
@@ -57,13 +54,11 @@ public class GooglePlacesService {
                         result.add(new PlaceInfoDTO(name, rating, address));
                     }
                 }
-                log.info("Google Places API Response: " + response.getBody());
                 return result;
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        log.info("Google Places API Response: " + response.getBody());
 
         return result;
     }

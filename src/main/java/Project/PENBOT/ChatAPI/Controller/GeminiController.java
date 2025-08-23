@@ -17,7 +17,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +27,6 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Slf4j
 @Tag(name = "Gemini 챗봇 API", description = "Gemini AI를 통한 펜션 예약 및 맛집 안내 챗봇 기능 제공")
 @RestController
 @RequestMapping("/api/gemini")
@@ -67,7 +65,6 @@ public class GeminiController {
     @PostMapping("/ask")
     public ResponseEntity<QueryResponseDTO> askGemini(@RequestBody QueryRequestDTO requestDTO,
                                                       @RequestHeader(HttpHeaders.AUTHORIZATION) String auth){
-        log.info("GeminiController.askGemini() 호출");
         // ChatLog에 질문 저장 && Redis에 질문 저장
         chatLogService.saveUserChat(auth, requestDTO);
         ChatMessageDTO chatMessageDTO= new ChatMessageDTO(ChatRole.USER, requestDTO.getText());
@@ -86,7 +83,6 @@ public class GeminiController {
                 responseMsg = String.format(
                         "라온아띠 펜션 위치 안내입니다.\n\n" +
                                 "• 주소: %s\n", p.getResult());
-                log.info(responseMsg);
             } else {
                 responseMsg = "죄송합니다. 현재 라온아띠 펜션 주소를 확인하지 못했습니다. 잠시 후 다시 시도해 주세요.";
             }
@@ -116,7 +112,6 @@ public class GeminiController {
 
         // 그 외 Gemini API 호출
         String answer = geminiService.getCompletion(requestDTO.getText(), auth);
-        log.info("Gemini API 응답: {}", answer);
 
         // JSON 추출 & BookingRequestDTO 파싱 ( 예약 분기 )
         Pattern jsonPattern = Pattern.compile("\\{[\\s\\S]+?\\}");
@@ -124,7 +119,6 @@ public class GeminiController {
         String json = null;
         if (matcher.find()) {
             json = matcher.group();
-            log.info("JSON 추출 성공: {}", json);
         }
 
         BookingRequestDTO bookingRequestDTO = null;
@@ -151,14 +145,12 @@ public class GeminiController {
             // 예약 가능만 문의(headcount 없는 경우, 또는 0/빈값)
             if (bookingRequestDTO.getHeadcount() <= 0) {
                 if (!bookingService.isAvailable(bookingRequestDTO)) {
-                    log.info("예약 불가 기간 요청: {} ~ {}", bookingRequestDTO.getStartDate(), bookingRequestDTO.getEndDate());
                     responseMsg = String.format("죄송합니다. 요청하신 기간(%s ~ %s)은 이미 예약이 되어 있습니다.",
                             bookingRequestDTO.getStartDate(), bookingRequestDTO.getEndDate());
                     chatLogService.saveBotChat(auth, responseMsg);
                     redisChatService.addChatMessage(auth, new ChatMessageDTO(ChatRole.MODEL, responseMsg));
                     return ResponseEntity.badRequest().body(new QueryResponseDTO(responseMsg));
                 }
-                log.info("예약 가능 기간 요청: {} ~ {}", bookingRequestDTO.getStartDate(), bookingRequestDTO.getEndDate());
                 responseMsg = String.format(
                         "요청하신 기간(%s ~ %s)은 예약이 가능합니다. 인원 수를 입력해 주세요.",
                         bookingRequestDTO.getStartDate(),
@@ -167,7 +159,6 @@ public class GeminiController {
             // 실제 예약 요청 (인원까지 모두 입력)
             else {
                 if (!bookingService.isAvailable(bookingRequestDTO)) {
-                    log.info("예약 불가능 기간 요청: {} ~ {}", bookingRequestDTO.getStartDate(), bookingRequestDTO.getEndDate());
                     responseMsg = String.format("죄송합니다. 요청하신 기간(%s ~ %s)은 이미 예약이 되어 있습니다.",
                             bookingRequestDTO.getStartDate(), bookingRequestDTO.getEndDate());
                     chatLogService.saveBotChat(auth, responseMsg);
@@ -213,13 +204,11 @@ public class GeminiController {
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<QueryResponseDTO> handleUserNotFound(UserNotFoundException ex) {
-        log.error(ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new QueryResponseDTO(ex.getMessage()));
     }
 
     @ExceptionHandler(UnableBookingException.class)
     public ResponseEntity<QueryResponseDTO> handleUserNotFound(UnableBookingException ex) {
-        log.error(ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new QueryResponseDTO(ex.getMessage()));
     }
 }
