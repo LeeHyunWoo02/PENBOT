@@ -13,12 +13,11 @@ import Project.PENBOT.User.Repository.UserRepository;
 import Project.PENBOT.User.Util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.transaction.Transactional;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-@Slf4j
+
 @Service
 public class ChatLogService {
     private final ChatLogRepository chatLogRepository;
@@ -61,16 +60,13 @@ public class ChatLogService {
 
     @Transactional
     public void BookingChatSave(int bookingId){
-        log.info("BookingChatSave: {}", bookingId);
         Optional<Booking> bookingOptional = bookingRepository.findById(bookingId);
         try{
             if (bookingOptional.isPresent()){
                 Booking booking = bookingOptional.get();
                 User user = booking.getUser();
-                log.info("User : {}", user.getId());
                 List<ChatLog> chatLogList = chatLogRepository.findTop3ByUserAndBookingIsNullOrderByDateTime(user);
                 for (ChatLog chatLog : chatLogList) {
-                    log.info("매칭중");
                     chatLog.setBooking(booking);
                 }
             }
