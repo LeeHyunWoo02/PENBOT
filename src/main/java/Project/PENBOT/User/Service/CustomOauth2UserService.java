@@ -1,12 +1,14 @@
 package Project.PENBOT.User.Service;
 
 import Project.PENBOT.User.Dto.JoinTempUserDTO;
+import Project.PENBOT.User.Dto.KakaoUserDetails;
 import Project.PENBOT.User.Entity.Role;
 import Project.PENBOT.User.Entity.User;
 import Project.PENBOT.User.Repository.OAuth2UserInfo;
 import Project.PENBOT.User.Repository.UserRepository;
 import Project.PENBOT.User.Dto.CustomUserDetails;
 import Project.PENBOT.User.Dto.NaverUserDetails;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -36,7 +38,9 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
         if (provider.equals("naver")) {
             oAuth2UserInfo = new NaverUserDetails(oAuth2User.getAttributes());
-        } else {
+        } else if (provider.equals("kakao")){
+            oAuth2UserInfo = new KakaoUserDetails(oAuth2User.getAttributes());
+        }else {
             throw new OAuth2AuthenticationException("지원하지 않은 OAuth2 제공자.");
         }
 
@@ -45,6 +49,9 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
         String email = oAuth2UserInfo.getEmail();
         String mobile = oAuth2UserInfo.getMobile();
+        if(oAuth2UserInfo.getMobile() == null){
+            mobile = "010-0000-0000";
+        }
         String role = Role.ROLE_TEMP.name();
         String name = oAuth2UserInfo.getName();
 
