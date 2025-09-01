@@ -44,11 +44,13 @@ public class JoinService {
         Claims claims = jwtUtil.getClaims(token);
         int userId = claims.get("userId", Integer.class);
         String password = dto.getPassword();
+        String phone = dto.getPhone();
 
         try{
             User user = userRepository.findById(userId);
             user.setPassword(passwordEncoder.encode(password));
             user.setRole(Role.ROLE_GUEST);
+            user.setPhone(phone);
             return userRepository.save(user);
         } catch (UserNotFoundException e){
             throw new UserNotFoundException();
