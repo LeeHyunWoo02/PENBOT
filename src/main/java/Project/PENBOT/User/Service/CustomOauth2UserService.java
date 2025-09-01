@@ -1,12 +1,14 @@
 package Project.PENBOT.User.Service;
 
 import Project.PENBOT.User.Dto.JoinTempUserDTO;
+import Project.PENBOT.User.Dto.KakaoUserDetails;
 import Project.PENBOT.User.Entity.Role;
 import Project.PENBOT.User.Entity.User;
 import Project.PENBOT.User.Repository.OAuth2UserInfo;
 import Project.PENBOT.User.Repository.UserRepository;
 import Project.PENBOT.User.Dto.CustomUserDetails;
 import Project.PENBOT.User.Dto.NaverUserDetails;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -14,6 +16,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
@@ -36,7 +39,11 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
         if (provider.equals("naver")) {
             oAuth2UserInfo = new NaverUserDetails(oAuth2User.getAttributes());
-        } else {
+        } else if (provider.equals("kakao")){
+            log.info("카카오 로그인 요청");
+            log.info("oAuth2User.getAttributes() : " + oAuth2User.getAttributes());
+            oAuth2UserInfo = new KakaoUserDetails(oAuth2User.getAttributes());
+        }else {
             throw new OAuth2AuthenticationException("지원하지 않은 OAuth2 제공자.");
         }
 
@@ -45,6 +52,9 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
         String email = oAuth2UserInfo.getEmail();
         String mobile = oAuth2UserInfo.getMobile();
+        if(oAuth2UserInfo.getMobile() == null){
+            mobile = "010-0000-0000";
+        }
         String role = Role.ROLE_TEMP.name();
         String name = oAuth2UserInfo.getName();
 
@@ -54,8 +64,10 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         User savedUser = userRepository.findByEmail(email);
 
         if(savedUser == null){
+            log.info("새로운 회원 회원가입 : " + savedUser.getName());
             return registerNewUser(oAuth2User,dto);
         } else {
+            log.info("기존 회원 로그인 : " + savedUser.getName());
             return new CustomUserDetails( savedUser, oAuth2User.getAttributes());
         }
     }
@@ -63,6 +75,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
     private CustomUserDetails registerNewUser(OAuth2User oAuth2User, JoinTempUserDTO dto) {
 
         User savedUser = joinService.JoinTempUser(dto);
+        log.info("OAuth2UserService - registerNewUser - savedUser : " + savedUser.getProvider());
 
         return new CustomUserDetails(savedUser, oAuth2User.getAttributes());
     }
