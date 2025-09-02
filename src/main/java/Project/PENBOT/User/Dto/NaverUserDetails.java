@@ -55,11 +55,11 @@ public class NaverUserDetails implements OAuth2UserInfo {
     public String getMobile() {
         Object mobile = attributes.get("mobile");
         if (mobile == null) {
-            mobile = attributes.get("mobile_e164"); // 네이버는 이 키로도 올 수 있음
+            mobile = attributes.get("mobile_e164");
         }
         return mobile != null ? String.valueOf(mobile) : null;
     }
-    // (필요하면 attributes 그대로 꺼내는 메서드 추가 가능)
+
     public Map<String, Object> getFlattenedAttributes() {
         return attributes;
     }
