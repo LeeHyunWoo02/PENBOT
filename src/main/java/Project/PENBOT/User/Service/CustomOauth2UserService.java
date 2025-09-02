@@ -1,6 +1,7 @@
 package Project.PENBOT.User.Service;
 
 import Project.PENBOT.User.Dto.JoinTempUserDTO;
+
 import Project.PENBOT.User.Dto.KakaoUserDetails;
 import Project.PENBOT.User.Entity.Role;
 import Project.PENBOT.User.Entity.User;
@@ -15,6 +16,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
@@ -63,6 +65,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         if(savedUser == null){
             return registerNewUser(oAuth2User,dto);
         } else {
+            log.info(savedUser.getEmail(), savedUser.getEmail(), savedUser.getName(), savedUser.getPhone());
             return new CustomUserDetails( savedUser, oAuth2User.getAttributes());
         }
     }
