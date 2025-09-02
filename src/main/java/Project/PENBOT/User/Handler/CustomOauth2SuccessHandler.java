@@ -2,7 +2,6 @@ package Project.PENBOT.User.Handler;
 
 import Project.PENBOT.User.Dto.CustomUserDetails;
 import Project.PENBOT.User.Util.JwtUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -11,8 +10,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+
 
 @Component
 public class CustomOauth2SuccessHandler implements AuthenticationSuccessHandler {

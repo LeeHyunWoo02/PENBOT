@@ -9,12 +9,7 @@ import java.util.Map;
 public class NaverUserDetails implements OAuth2UserInfo {
 
     private final Map<String,Object> attributes;
-//    private Map<String, Object> response;
 
-//    public NaverUserDetails(Map<String, Object> attributes) {
-//        this.attributes = attributes;
-//        this.response = (Map<String, Object>) attributes.get("response");
-//    }
     @SuppressWarnings("unchecked")
     public NaverUserDetails(Map<String, Object> attributes) {
         if (attributes == null) {
@@ -27,9 +22,10 @@ public class NaverUserDetails implements OAuth2UserInfo {
         Object resp = attributes.get("response");
         if (resp instanceof Map<?,?> respMap) {
             respMap.forEach((k,v) -> flat.put(String.valueOf(k), v));
+            flat.remove("response");
         }
 
-        this.attributes = flat;
+        this.attributes = Collections.unmodifiableMap(flat);
     }
 
     @Override
@@ -63,8 +59,8 @@ public class NaverUserDetails implements OAuth2UserInfo {
         }
         return mobile != null ? String.valueOf(mobile) : null;
     }
-
-    public Map<String,Object> getAttributes() {
+    // (필요하면 attributes 그대로 꺼내는 메서드 추가 가능)
+    public Map<String, Object> getFlattenedAttributes() {
         return attributes;
     }
 }
