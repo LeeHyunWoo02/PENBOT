@@ -31,7 +31,8 @@ public class CustomOauth2SuccessHandler implements AuthenticationSuccessHandler 
 
 
         // 프론트엔드 콜백 URL (환경에 따라 수정)
-        String redirectUrl = "http://localhost:5173/oauth2/redirect?accessToken=" + accessToken;
+//        String redirectUrl = "http://localhost:5173/oauth2/redirect?accessToken=" + accessToken;
+        String redirectUrl = "https://penbot.vercel.app/oauth2/redirect?accessToken=" + accessToken;
 
         response.sendRedirect(redirectUrl);
 
