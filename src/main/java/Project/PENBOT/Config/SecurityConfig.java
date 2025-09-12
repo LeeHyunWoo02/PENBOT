@@ -19,6 +19,8 @@ import org.springframework.web.cors.CorsConfigurationSource;
 
 import java.util.Collections;
 
+import static java.util.Collections.singletonList;
+
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
@@ -88,13 +90,13 @@ public class SecurityConfig {
                             public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                                 CorsConfiguration config = new CorsConfiguration();
 
-                                config.setAllowedOrigins(Collections.singletonList("http://localhost:5173"));
-                                config.setAllowedMethods(Collections.singletonList("*")); // 허용할 메소드 Get ect on
+                                config.setAllowedOrigins(singletonList("https://penbot.vercel.app"));
+                                config.setAllowedMethods(singletonList("*")); // 허용할 메소드 Get ect on
                                 config.setAllowCredentials(true);
-                                config.setAllowedHeaders(Collections.singletonList("*"));
+                                config.setAllowedHeaders(singletonList("*"));
                                 config.setMaxAge(3600L);
 
-                                config.setExposedHeaders(Collections.singletonList("Authorization"));
+                                config.setExposedHeaders(singletonList("Authorization"));
 
                                 return config;
                             }
