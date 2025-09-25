@@ -4,6 +4,7 @@ import Project.PENBOT.Booking.Dto.BookingSimpleDTO;
 import Project.PENBOT.Booking.Entity.Booking;
 import Project.PENBOT.CustomException.UserNotFoundException;
 import Project.PENBOT.User.Converter.UserConverter;
+import Project.PENBOT.User.Dto.UserResponseDTO;
 import Project.PENBOT.User.Dto.UserSearchResponseDTO;
 import Project.PENBOT.User.Entity.User;
 import Project.PENBOT.User.Repository.UserRepository;
@@ -48,6 +49,18 @@ public class UserService {
             }
 
             return UserConverter.ToDTO(user,myBookings);
+        } catch (UserNotFoundException e){
+            throw new UserNotFoundException();
+        }
+    }
+
+    public UserResponseDTO deleteUser(String auth){
+        String token = auth.replace("Bearer ", "");
+        Claims claims = jwtUtil.getClaims(token);
+        int userId = claims.get("userId", Integer.class);
+        try{
+            userRepository.deleteById(userId);
+            return new UserResponseDTO(true, "User deleted successfully");
         } catch (UserNotFoundException e){
             throw new UserNotFoundException();
         }
