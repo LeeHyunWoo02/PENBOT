@@ -65,8 +65,8 @@ public class BookingService {
         return true;
     }
 
-    public MyBookingResponseDTO getAllMyBooking(String auth){
-        int userId = getUserId(auth);
+    public MyBookingResponseDTO getAllMyBooking(int userId){
+//        int userId = getUserId(auth);
         try{
             User user = userRepository.findById(userId);
             return BookingConverter.toAllDto(user);
@@ -75,8 +75,8 @@ public class BookingService {
         }
     }
 
-    public MyBookingResponseDTO getMyBooking(String auth, int bookingId) {
-        int userId = getUserId(auth);
+    public MyBookingResponseDTO getMyBooking(int userId, int bookingId) {
+//        int userId = getUserId(auth);
 
         if (!userRepository.existsById(userId)) {
             throw new UserNotFoundException();
@@ -95,13 +95,13 @@ public class BookingService {
     }
 
     @Transactional
-    public void deleteBooking(String auth, int bookingId){
+    public void deleteBooking(int userId, int bookingId){
         Optional<Booking> bookingOptional = bookingRepository.findById(bookingId);
         if(bookingOptional.isEmpty()) {
             throw new RuntimeException("존재하지 않는 예약입니다.");
         }
         Booking booking = bookingOptional.get();
-        if(booking.getUser().getId() != getUserId(auth)) {
+        if(booking.getUser().getId() != userId) {
             throw new ForbiddenException();
         }
 

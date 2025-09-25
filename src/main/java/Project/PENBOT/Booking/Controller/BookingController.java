@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "예약 API", description = "예약 관련 API 제공")
@@ -75,9 +76,9 @@ public class BookingController {
             @ApiResponse(responseCode = "400", description = "요청 실패")
     })
     @GetMapping("/myall")
-    public ResponseEntity<MyBookingResponseDTO> getMyBookings(@RequestHeader(HttpHeaders.AUTHORIZATION) String auth){
+    public ResponseEntity<MyBookingResponseDTO> getMyBookings(@AuthenticationPrincipal Integer userId){
         try {
-            MyBookingResponseDTO responseDTO = bookingService.getAllMyBooking(auth);
+            MyBookingResponseDTO responseDTO = bookingService.getAllMyBooking(userId);
             responseDTO.setSuccess(true);
             responseDTO.setMessage("예약 정보를 성공적으로 가져왔습니다.");
             return ResponseEntity.ok(responseDTO);
@@ -93,10 +94,10 @@ public class BookingController {
             @ApiResponse(responseCode = "404", description = "해당 유저, 예약을 찾을 수 없음")
     })
     @GetMapping("/{bookingId}")
-    public ResponseEntity<MyBookingResponseDTO> getMyBooking(@RequestHeader(HttpHeaders.AUTHORIZATION) String auth,
+    public ResponseEntity<MyBookingResponseDTO> getMyBooking(@AuthenticationPrincipal Integer userId,
                                                              @PathVariable int bookingId) {
         try{
-            MyBookingResponseDTO responseDTO = bookingService.getMyBooking(auth,bookingId);
+            MyBookingResponseDTO responseDTO = bookingService.getMyBooking(userId,bookingId);
             responseDTO.setSuccess(true);
             responseDTO.setMessage("예약 정보를 성공적으로 가져왔습니다.");
             return ResponseEntity.ok(responseDTO);
@@ -113,10 +114,10 @@ public class BookingController {
             @ApiResponse(responseCode = "400", description = "예약 삭제 실패")
     })
     @DeleteMapping("/{bookingId}/delete")
-    public ResponseEntity<BookingResponseDTO> deleteBooking(@RequestHeader(HttpHeaders.AUTHORIZATION) String auth,
+    public ResponseEntity<BookingResponseDTO> deleteBooking(@AuthenticationPrincipal Integer userId,
                                                              @PathVariable int bookingId) {
         try{
-            bookingService.deleteBooking(auth, bookingId);
+            bookingService.deleteBooking(userId, bookingId);
             return ResponseEntity.ok(new BookingResponseDTO(true, bookingId, "예약이 성공적으로 삭제되었습니다."));
         } catch (Exception e){
             return ResponseEntity.badRequest().body(new BookingResponseDTO(false, bookingId, e.getMessage()));
