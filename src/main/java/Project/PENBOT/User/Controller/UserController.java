@@ -61,6 +61,17 @@ public class UserController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    @Operation(summary = "유저 탈퇴", description = "유저 탈퇴")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "유저 정보 수정 성공"),
+            @ApiResponse(responseCode = "404", description = "유저를 찾을 수 없음")
+    })
+    @DeleteMapping("/delete")
+    private ResponseEntity<UserResponseDTO> DeleteUser(@RequestHeader(HttpHeaders.AUTHORIZATION) String auth) {
+        UserResponseDTO responseDTO = userService.deleteUser(auth);
+        return ResponseEntity.ok(responseDTO);
+    }
+
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<UserResponseDTO> handleUserNotFound(UserNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new UserResponseDTO(false,ex.getMessage()));
