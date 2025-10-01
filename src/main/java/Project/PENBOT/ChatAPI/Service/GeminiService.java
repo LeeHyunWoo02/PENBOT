@@ -11,8 +11,8 @@ import java.util.Optional;
 
 @Service
 public class GeminiService {
-    public static final String GEMINI_FLASH = "gemini-1.5-flash";
-    public static final String GEMINI_PRO = "gemini-1.5-pro";
+    public static final String GEMINI_FLASH = "gemini-2.0-flash";
+    public static final String GEMINI_PRO = "gemini-2.0-pro";
 
     private final GeminiInterface geminiInterface;
     private final RedisChatService redisChatService;
