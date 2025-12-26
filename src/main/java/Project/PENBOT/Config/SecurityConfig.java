@@ -1,10 +1,5 @@
 package Project.PENBOT.Config;
 
-import Project.PENBOT.User.Filter.JwtFilter;
-import Project.PENBOT.User.Handler.CustomOauth2FailureHandler;
-import Project.PENBOT.User.Handler.CustomOauth2SuccessHandler;
-import Project.PENBOT.User.Service.CustomOauth2UserService;
-import Project.PENBOT.User.Util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,11 +8,9 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
-import java.util.Collections;
 
 import static java.util.Collections.singletonList;
 
@@ -25,18 +18,6 @@ import static java.util.Collections.singletonList;
 @Configuration
 public class SecurityConfig {
 
-    private final CustomOauth2UserService customOauth2UserService;
-    private final JwtUtil jwtUtil;
-    private final CustomOauth2SuccessHandler customOauth2SuccessHandler;
-    private final CustomOauth2FailureHandler customOauth2FailureHandler;
-
-    public SecurityConfig(CustomOauth2UserService customOauth2UserService, JwtUtil jwtUtil,
-                          CustomOauth2SuccessHandler customOauth2SuccessHandler, CustomOauth2FailureHandler customOauth2FailureHandler) {
-        this.customOauth2UserService = customOauth2UserService;
-        this.jwtUtil = jwtUtil;
-        this.customOauth2SuccessHandler = customOauth2SuccessHandler;
-        this.customOauth2FailureHandler = customOauth2FailureHandler;
-    }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
@@ -48,8 +29,6 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/api/host/**").hasRole("HOST")
-                        .requestMatchers("/api/bookings","/api/bookings/myall").hasRole("GUEST")
                         .requestMatchers("/**").permitAll()
                         .anyRequest().authenticated()
                 );
@@ -59,24 +38,6 @@ public class SecurityConfig {
          * */
         http
                 .csrf((csrf) -> csrf.disable());
-
-        /**
-         * OAuth2 로그인 로직
-         * */
-        http
-                .oauth2Login((oauth) -> oauth
-                        .userInfoEndpoint((userInfo) ->
-                                {userInfo.userService(customOauth2UserService);}
-                        )
-                        .successHandler(customOauth2SuccessHandler)
-                        .failureHandler(customOauth2FailureHandler)
-                );
-
-        /**
-         * jwt 필터 등록
-         * */
-        http.
-                addFilterBefore(new JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
 
 
