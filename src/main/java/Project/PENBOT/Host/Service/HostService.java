@@ -8,17 +8,13 @@ import Project.PENBOT.Booking.Entity.Booking;
 import Project.PENBOT.Booking.Repository.BookingRepository;
 import Project.PENBOT.CustomException.BlockedDateConflictException;
 import Project.PENBOT.CustomException.BookingNotFoundException;
-import Project.PENBOT.CustomException.UserNotFoundException;
 import Project.PENBOT.Host.Converter.BlockedDateConverter;
 import Project.PENBOT.Host.Converter.BookingAllConverter;
 import Project.PENBOT.Host.Dto.*;
 import Project.PENBOT.Host.Entity.BlockedDate;
 import Project.PENBOT.Host.Repository.BlockedDateRepository;
-import Project.PENBOT.User.Dto.UserResponseDTO;
-import Project.PENBOT.User.Entity.User;
-import Project.PENBOT.User.Repository.UserRepository;
+
 import jakarta.transaction.Transactional;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -26,21 +22,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class HostService {
 
     private final BookingRepository bookingRepository;
     private final BlockedDateRepository blockedDateRepository;
-    private final UserRepository userRepository;
 
-    public HostService(BookingRepository bookingRepository, BlockedDateRepository blockedDateRepository, UserRepository userRepository) {
+    public HostService(BookingRepository bookingRepository,
+                       BlockedDateRepository blockedDateRepository) {
         this.bookingRepository = bookingRepository;
         this.blockedDateRepository = blockedDateRepository;
-        this.userRepository = userRepository;
     }
 
+    /**
+     * 전체 예약 조회
+     * */
     public List<BookingListResponseDTO> getBookingAll(){
         List<Booking> bookings = bookingRepository.findAll();
         if (bookings.isEmpty()) {
@@ -113,6 +110,9 @@ public class HostService {
                 .build();
     }
 
+    /**
+     * 관리자 차단 날짜 생성
+     * */
     @Transactional
     public BlockedDateResponseDTO createBlockedDate(BlockDateRequestDTO requestDTO) {
 
@@ -159,52 +159,7 @@ public class HostService {
         return unavailableDates;
     }
 
-    @Transactional
-    public UserResponseDTO deleteUser(int userId){
-        User user = userRepository.findById(userId);
-        if(user == null){
-            throw new UserNotFoundException();
-        }
-        userRepository.delete(user);
-        return new UserResponseDTO(true, "사용자가 성공적으로 삭제되었습니다.");
-    }
 
-    /**
-     * 가입한 유저 모두 조회
-     * */
-    public List<UserListResponseDTO> getAllUsers(){
-
-        List<User> users = userRepository.findAll();
-        if(users == null){
-            throw new UserNotFoundException();
-        }
-        return users.stream()
-                .map(user -> UserListResponseDTO.builder()
-                        .userId(user.getId())
-                        .name(user.getName())
-                        .email(user.getEmail())
-                        .phone(user.getPhone())
-                        .role(user.getRole().toString()) // Role을 문자열로 변환
-                        .build())
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * 유저 상세 조회
-     * */
-    public UserDetailResponseDTO getUserDetail(int userId){
-        User user = userRepository.findById(userId);
-        if(user == null){
-            throw new UserNotFoundException();
-        }
-
-        return UserDetailResponseDTO.builder()
-                .name(user.getName())
-                .email(user.getEmail())
-                .phone(user.getPhone())
-                .role(user.getRole())
-                .build();
-    }
 
     public boolean isAvailable(LocalDate startDate, LocalDate endDate){
         boolean isBooked = bookingRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(endDate, startDate);
@@ -213,7 +168,8 @@ public class HostService {
         return (isBooked || isBlocked);
     }
 
-    private static void SemiBookingsConverter(List<Booking> bookings, List<UnavailableDateDTO> unavailableDates) {
+    private static void SemiBookingsConverter(List<Booking> bookings,
+                                              List<UnavailableDateDTO> unavailableDates) {
         for (Booking booking : bookings) {
             unavailableDates.add(UnavailableDateDTO.builder()
                     .startDate(booking.getStartDate())

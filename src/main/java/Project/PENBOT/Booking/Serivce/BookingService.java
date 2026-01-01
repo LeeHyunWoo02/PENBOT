@@ -7,9 +7,7 @@ import Project.PENBOT.Booking.Dto.MyBookingResponseDTO;
 import Project.PENBOT.Booking.Entity.Booking;
 import Project.PENBOT.Booking.Repository.BookingRepository;
 import Project.PENBOT.Host.Repository.BlockedDateRepository;
-import Project.PENBOT.User.Entity.User;
-import Project.PENBOT.User.Repository.UserRepository;
-import Project.PENBOT.User.Util.JwtUtil;
+
 import io.jsonwebtoken.Claims;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -22,32 +20,21 @@ public class BookingService {
 
     private final BookingRepository bookingRepository;
     private final BlockedDateRepository blockedDateRepository;
-    private final UserRepository userRepository;
-    private final JwtUtil jwtUtil;
 
-    public BookingService(BookingRepository bookingRepository, BlockedDateRepository blockedDateRepository, UserRepository userRepository, JwtUtil jwtUtil) {
+    public BookingService(BookingRepository bookingRepository, BlockedDateRepository blockedDateRepository) {
         this.bookingRepository = bookingRepository;
         this.blockedDateRepository = blockedDateRepository;
-        this.userRepository = userRepository;
-        this.jwtUtil = jwtUtil;
+
     }
 
     @Transactional
-    public Booking createBooking(BookingRequestDTO requestDTO, String auth) {
-
-        int userId = getUserId(auth);
+    public Booking createBooking(BookingRequestDTO requestDTO) {
 
         if (!isAvailable(requestDTO)) {
             throw new ForbiddenCreateBookingException("예약이 불가능한 날짜입니다.");
         }
 
-        User user = userRepository.findById(userId);
-        if( user == null) {
-            throw new UserNotFoundException();
-        }
-
-        Booking booking = BookingConverter.toEntity(requestDTO, user);
-        user.addBooking(booking);
+        Booking booking = BookingConverter.toEntity(requestDTO);
 
         return bookingRepository.save(booking);
     }
@@ -65,53 +52,6 @@ public class BookingService {
         return true;
     }
 
-    public MyBookingResponseDTO getAllMyBooking(int userId){
-//        int userId = getUserId(auth);
-        try{
-            User user = userRepository.findById(userId);
-            return BookingConverter.toAllDto(user);
-        } catch (NullPointerException e) {
-            throw new RuntimeException("존재하지 않는 사용자입니다.");
-        }
-    }
 
-    public MyBookingResponseDTO getMyBooking(int userId, int bookingId) {
-//        int userId = getUserId(auth);
 
-        if (!userRepository.existsById(userId)) {
-            throw new UserNotFoundException();
-        }
-
-        Optional<Booking> bookingOptional = bookingRepository.findById(bookingId);
-        if (bookingOptional.isEmpty()) {
-            throw new BookingNotFoundException();
-        }
-
-        if (bookingOptional.get().getUser().getId() != userId) {
-            throw new ForbiddenException();
-        }
-
-        return BookingConverter.toMyDto(bookingOptional.get());
-    }
-
-    @Transactional
-    public void deleteBooking(int userId, int bookingId){
-        Optional<Booking> bookingOptional = bookingRepository.findById(bookingId);
-        if(bookingOptional.isEmpty()) {
-            throw new RuntimeException("존재하지 않는 예약입니다.");
-        }
-        Booking booking = bookingOptional.get();
-        if(booking.getUser().getId() != userId) {
-            throw new ForbiddenException();
-        }
-
-        bookingRepository.delete(booking);
-    }
-
-    private int getUserId(String auth) {
-        String token = auth.replace("Bearer ", "");
-        Claims claims = jwtUtil.getClaims(token);
-        int userId = claims.get("userId", Integer.class);
-        return userId;
-    }
 }

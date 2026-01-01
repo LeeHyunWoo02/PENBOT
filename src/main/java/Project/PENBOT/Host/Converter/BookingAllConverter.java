@@ -10,7 +10,6 @@ public class BookingAllConverter {
         return bookings.stream()
                 .map(booking -> BookingListResponseDTO.builder()
                         .bookingId(booking.getId())
-                        .name(booking.getUser().getName())
                         .startDate(booking.getStartDate())
                         .endDate(booking.getEndDate())
                         .headcount(booking.getHeadcount())
