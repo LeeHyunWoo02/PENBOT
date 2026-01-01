@@ -1,6 +1,5 @@
 package Project.PENBOT.Booking.Entity;
 
-import Project.PENBOT.User.Entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,21 +18,29 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-
-    @Column(nullable = false)
+    @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
-    @Column(nullable = false)
+    @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
     @Column(nullable = false)
     private int headcount;
 
-    @Column(nullable = false)
+    @Column(name = "create_at", nullable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "guest_name")
+    private String guestName;
+
+    @Column(name = "guest_phone")
+    private String guestPhone;
+
+    @Column(name = "guest_email")
+    private String guestEmail;
+
+    @Column
+    private Integer password;
 
     @Enumerated(EnumType.STRING)
     private BookStatus status;
