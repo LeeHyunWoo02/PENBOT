@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<header th:fragment="common-header" class="header">
+    <div class="container header-content">
+        <a th:href="@{/}" class="logo">
+            <i class="fa-solid fa-house-chimney-window"></i>
+            CozyStay
+        </a>
+
+        <div class="header-actions">
+            <nav class="nav-menu">
+                <a th:href="@{/roomInfo}" class="nav-link">객실 안내</a>
+                <a th:href="@{/reservationInfo}" class="nav-link">예약 안내</a>
+                <a th:href="@{/directions}" class="nav-link">오시는 길</a>
+            </nav>
+
+            <a th:href="@{/reserve}" class="btn btn-primary">
+                <i class="fa-regular fa-calendar-check" style="margin-right: 8px;"></i>
+                예약 확인하기
+            </a>
+        </div>
+    </div>
+</header>
+
+</body>
+</html>

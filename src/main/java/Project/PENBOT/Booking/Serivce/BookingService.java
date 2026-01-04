@@ -3,17 +3,15 @@ package Project.PENBOT.Booking.Serivce;
 import Project.PENBOT.Booking.Converter.BookingConverter;
 import Project.PENBOT.CustomException.*;
 import Project.PENBOT.Booking.Dto.BookingRequestDTO;
-import Project.PENBOT.Booking.Dto.MyBookingResponseDTO;
 import Project.PENBOT.Booking.Entity.Booking;
 import Project.PENBOT.Booking.Repository.BookingRepository;
 import Project.PENBOT.Host.Repository.BlockedDateRepository;
 
-import io.jsonwebtoken.Claims;
+
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 @Service
 public class BookingService {

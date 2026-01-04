@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/head :: common-head(title='CozyStay - 실시간 예약')}"></head>
+
+<body>
+<header th:replace="~{fragments/header :: common-header}"></header>
+
+<main>
+    <section class="page-hero reserve-hero" style="height: 300px;">
+        <div class="page-hero-overlay"></div>
+        <div class="container page-hero-content">
+            <h1 class="page-title">Real-time Booking</h1>
+            <p class="page-subtitle">편안한 휴식을 위한 첫걸음, 날짜를 선택해주세요.</p>
+        </div>
+    </section>
+
+    <section class="section container">
+        <div class="booking-container">
+
+            <div class="calendar-wrapper">
+                <div class="calendar-header">
+                    <button id="prev-month" class="cal-nav-btn"><i class="fa-solid fa-chevron-left"></i></button>
+                    <h2 id="current-month-year">2026년 1월</h2>
+                    <button id="next-month" class="cal-nav-btn"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+
+                <div class="calendar-days-header">
+                    <span class="sun">Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span class="sat">Sat</span>
+                </div>
+
+                <div id="calendar-grid" class="calendar-grid">
+                </div>
+            </div>
+
+            <div class="booking-sidebar">
+                <h3 class="sidebar-title">예약 정보</h3>
+
+                <div class="form-group">
+                    <label>선택된 날짜</label>
+                    <div id="selected-date-display" class="display-box placeholder">
+                        날짜를 선택해주세요
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="guest-count">투숙객 수</label>
+                    <select id="guest-count" class="form-select">
+                        <option value="2">성인 2명</option>
+                        <option value="3">성인 3명</option>
+                        <option value="4">성인 4명</option>
+                        <option value="5">성인 5명 (최대)</option>
+                    </select>
+                </div>
+
+                <div class="price-summary" id="price-section" style="display: none;">
+                    <div class="price-row">
+                        <span>객실 요금</span>
+                        <span id="room-price">0원</span>
+                    </div>
+                    <div class="price-row total">
+                        <span>총 합계</span>
+                        <span id="total-price">0원</span>
+                    </div>
+                </div>
+
+                <div class="sidebar-actions">
+                    <button id="btn-check-avail" class="btn btn-primary full-width">
+                        예약 가능 여부 확인
+                    </button>
+                    <button id="btn-submit-booking" class="btn btn-success full-width" style="display: none;">
+                        예약하기
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/footer :: common-footer}"></footer>
+
+<script th:src="@{/js/booking.js}"></script>
+
+</body>
+</html>
