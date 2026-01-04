@@ -2,6 +2,8 @@ package Project.PENBOT.OpenAi.Client;
 
 
 
+import Project.PENBOT.OpenAi.Dto.OpenAiRequest;
+import Project.PENBOT.OpenAi.Dto.OpenAiResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,9 +42,9 @@ public class OpenAiClient {
 
         ResponseEntity<OpenAiResponse> res = restTemplate.postForEntity(
                 APIURL, entity, OpenAiResponse.class);
-        if (!res.getStatusCode().is2xxSuccessful() || res.getBody() == null) {
-            throw new BusinessException(OPENAI_TOKEN_EXPIRED, "토큰이 만료되었습니다.");
-        }
+//        if (!res.getStatusCode().is2xxSuccessful() || res.getBody() == null) {
+//            throw new JsonProcessingException();
+//        }
         return res.getBody();
     }
 
