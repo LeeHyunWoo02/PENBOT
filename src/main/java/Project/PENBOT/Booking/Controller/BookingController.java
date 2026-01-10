@@ -40,7 +40,6 @@ public class BookingController {
         } catch (Exception e){
             return ResponseEntity.badRequest().body(new BookingResponseDTO(false, 0, e.getMessage()));
         }
-
     }
 
     @Operation(summary = "예약 가능 여부 확인", description = "입력된 날짜 범위 내에서 예약이 가능한지 확인합니다.")

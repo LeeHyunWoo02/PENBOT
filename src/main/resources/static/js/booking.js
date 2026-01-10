@@ -1,7 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // ==========================================
-    // 1. 전역 변수 및 DOM 요소 가져오기
-    // ==========================================
+
     const calendarGrid = document.getElementById('calendar-grid');
     const currentMonthEl = document.getElementById('current-month-year');
     const selectedDateDisplay = document.getElementById('selected-date-display');
@@ -24,11 +22,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // 입력 필드
     const inputName = document.getElementById('booker-name');
     const inputPhone = document.getElementById('booker-phone');
+    const inputEmail = document.getElementById('booker-email');
     const inputPassword = document.getElementById('booker-password');
-    const inputRequest = document.getElementById('booker-request');
+    // const inputRequest = document.getElementById('booker-request');
 
-    let currentDate = new Date(); // 현재 보고 있는 달
-    let selectedDate = null; // 사용자가 선택한 날짜 (이 변수를 공유하는 것이 핵심!)
+    let currentDate = new Date();
+    let selectedDate = null;
 
     // ==========================================
     // 2. 캘린더 초기화 및 렌더링
@@ -60,13 +59,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const firstDay = new Date(year, month, 1).getDay();
         const lastDate = new Date(year, month + 1, 0).getDate();
 
-        // 빈 칸 채우기
         for (let i = 0; i < firstDay; i++) {
             const emptyCell = document.createElement('div');
             calendarGrid.appendChild(emptyCell);
         }
 
-        // 날짜 채우기
         for (let i = 1; i <= lastDate; i++) {
             const dayCell = document.createElement('div');
             dayCell.classList.add('day-cell');
@@ -80,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // [가격 로직 예시]
             const checkDay = new Date(year, month, i).getDay();
-            let price = (checkDay === 5 || checkDay === 6) ? "250,000" : "150,000";
+            let price = (checkDay === 5 || checkDay === 6) ? "1.000,000" : "450,000";
             dayPrice.innerText = price;
 
             dayCell.appendChild(dayNumber);
@@ -91,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.querySelectorAll('.day-cell.selected').forEach(el => el.classList.remove('selected'));
                 dayCell.classList.add('selected');
 
-                selectedDate = new Date(year, month, i); // 여기서 전역 변수 업데이트
+                selectedDate = new Date(year, month, i);
                 updateSidebar(selectedDate, price);
             });
 
@@ -121,7 +118,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // '예약하기' 버튼 클릭 시 -> 모달 띄우기
     btnSubmit.addEventListener('click', () => {
-        // 같은 스코프 안에 있으므로 selectedDate 접근 가능
         if (!selectedDate) {
             alert("날짜를 선택해주세요.");
             return;
@@ -135,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
         modalGuests.innerText = `성인 ${guestCount}명`;
         modalPrice.innerText = priceStr;
 
-        // 모달 표시 (CSS .hidden 클래스 제거)
+        // 모달 표시
         bookingModal.classList.remove('hidden');
     });
 
@@ -144,18 +140,10 @@ document.addEventListener('DOMContentLoaded', () => {
         bookingModal.classList.add('hidden');
     });
 
-    // 모달 배경 클릭 시 닫기 (선택사항)
-    /*
-    bookingModal.addEventListener('click', (e) => {
-        if(e.target === bookingModal) {
-            bookingModal.classList.add('hidden');
-        }
-    });
-    */
-
     // '최종 예약 요청' 버튼 클릭 -> API 전송
     btnFinalRequest.addEventListener('click', () => {
-        if(!inputName.value || !inputPhone.value || !inputPassword.value) {
+        // 1. 유효성 검사
+        if(!inputName.value || !inputPhone.value  || !inputPassword.value) {
             alert("필수 정보를 모두 입력해주세요.");
             return;
         }
@@ -164,18 +152,37 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const requestData = {
-            date: modalDate.innerText,
-            guests: parseInt(modalGuests.innerText.replace(/[^0-9]/g, '')),
-            name: inputName.value,
-            phone: inputPhone.value,
-            password: inputPassword.value,
-            requests: inputRequest.value
+        // 2. 날짜 계산 로직 (버튼 클릭 시점에 계산해야 정확함)
+        const checkInString = modalDate.innerText; // "yyyy-MM-dd"
+        const startDateObj = new Date(checkInString);
+        const endDateObj = new Date(startDateObj);
+        endDateObj.setDate(startDateObj.getDate() + 1); // 1박 2일로 계산
+
+        // 날짜 포맷팅 함수 (내부 사용)
+        const formatDate = (d) => {
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
         };
 
+        // 3. DTO 구조에 맞춘 데이터 생성
+        const requestData = {
+            startDate: checkInString,              // DTO: startDate
+            endDate: formatDate(endDateObj),       // DTO: endDate
+            headcount: parseInt(modalGuests.innerText.replace(/[^0-9]/g, '')), // DTO: headcount
+            password: parseInt(inputPassword.value), // DTO: password (Integer)
+            guestName: inputName.value,            // DTO: guestName
+            guestPhone: inputPhone.value,          // DTO: guestPhone
+            guestEmail: inputEmail.value           // DTO: guestEmail
+            // requests: inputRequest.value        // DTO에 필드가 없으므로 제외 (필요시 백엔드 추가 후 주석 해제)
+        };
+
+        console.log("전송 데이터:", requestData);
+
         // [API 연동 부분]
-        /*
-        fetch('/api/reservations', {
+
+        fetch('/api/bookings/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(requestData)
@@ -185,17 +192,18 @@ document.addEventListener('DOMContentLoaded', () => {
             throw new Error('예약 실패');
         })
         .then(data => {
-            alert("예약 요청이 접수되었습니다!");
+            alert("예약 요청이 접수되었습니다! 입금 안내 문자를 확인해주세요.");
             location.reload();
         })
         .catch(err => {
             console.error(err);
+            alert("오류가 발생했습니다.");
         });
-        */
 
-        console.log("전송 데이터:", requestData);
-        alert(`[테스트] 예약 요청 완료!\n\n예약자: ${requestData.name}`);
-        bookingModal.classList.add('hidden');
+
+        // // 테스트용
+        // alert(`[테스트] 예약 요청 완료!\n\n예약자: ${requestData.guestName}\n이메일: ${requestData.guestEmail}`);
+        // bookingModal.classList.add('hidden');
     });
 
 });
