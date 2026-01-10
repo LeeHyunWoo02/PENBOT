@@ -34,6 +34,9 @@ public class BookingController {
         }
     }
 
+    /**
+     * 불가 날짜 전체 조회
+     * */
     @GetMapping("/unavailable")
     public ResponseEntity<List<String>> getUnavailableDates(
             @RequestParam int year,

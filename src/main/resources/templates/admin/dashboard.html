@@ -40,16 +40,18 @@
                 </div>
 
                 <div class="table-responsive">
-                    <table class="admin-table hover-table"> <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>예약자명</th>
-                        <th>연락처</th> <th>일정</th>
-                        <th>인원</th>
-                        <th>상태</th>
-                        <th>관리</th>
-                    </tr>
-                    </thead>
+                    <table class="admin-table hover-table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>예약자명</th>
+                            <th>연락처</th>
+                            <th>일정</th>
+                            <th>인원</th>
+                            <th>상태</th>
+                            <th>관리</th>
+                        </tr>
+                        </thead>
                         <tbody id="booking-list-body">
                         <tr><td colspan="7" style="text-align:center;">로딩 중...</td></tr>
                         </tbody>
@@ -63,14 +65,25 @@
                 </div>
                 <div class="block-date-form-wrapper">
                     <form id="block-date-form" class="admin-form-row">
-                        <div class="form-group"><label>시작</label><input type="date" id="block-start" required></div>
-                        <div class="form-group"><label>종료</label><input type="date" id="block-end" required></div>
-                        <div class="form-group"><label>사유</label><input type="text" id="block-reason" placeholder="사유 입력" required></div>
+                        <div class="form-group">
+                            <label>시작 날짜</label>
+                            <input type="date" id="block-start" required>
+                        </div>
+                        <div class="form-group">
+                            <label>종료 날짜</label>
+                            <input type="date" id="block-end" required>
+                        </div>
+                        <div class="form-group">
+                            <label>사유</label>
+                            <input type="text" id="block-reason" placeholder="예: 내부 수리" required>
+                        </div>
                         <button type="submit" class="btn btn-danger">차단하기</button>
                     </form>
                 </div>
                 <div class="blocked-list">
-                    <ul id="blocked-dates-ul"></ul>
+                    <h4>현재 차단된 날짜</h4>
+                    <ul id="blocked-dates-ul">
+                    </ul>
                 </div>
             </section>
         </div>
