@@ -7,10 +7,12 @@
 <header th:replace="~{fragments/header :: common-header}"></header>
 
 <main>
-    <section class="page-hero room-hero">
+    <section class="page-hero room-hero" th:style="|background-image: url('@{/images/nightview.jpg}');|">
+
         <div class="page-hero-overlay"></div>
+
         <div class="container page-hero-content">
-            <h1 class="page-title">Royal Pool Villa</h1>
+            <h1 class="page-title">라온아띠 풀 빌라</h1>
             <p class="page-subtitle">자연과 하나되는 프라이빗 인피니티 풀, 당신만의 럭셔리 휴식처</p>
         </div>
     </section>
@@ -18,13 +20,13 @@
     <section class="section container">
         <div class="room-gallery">
             <div class="gallery-main">
-                <img src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=1600&auto=format&fit=crop" alt="거실 전경">
+                <img th:src="@{/images/firezone.jpg}" alt="불멍">
             </div>
             <div class="gallery-sub">
-                <img src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=800&auto=format&fit=crop" alt="침실">
-                <img src="https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=800&auto=format&fit=crop" alt="주방">
-                <img src="https://images.unsplash.com/photo-1623298317883-6b70254edf31?q=80&w=800&auto=format&fit=crop" alt="전용 수영장">
-                <img src="https://images.unsplash.com/photo-1554995207-c18c203602cb?q=80&w=800&auto=format&fit=crop" alt="테라스">
+                <img th:src="@{/images/swimming.jpg}" alt="수영장">
+                <img th:src="@{/images/kids.jpg}" alt="키즈존">
+                <img th:src="@{/images/balconi.jpg}" alt="테라스">
+                <img th:src="@{/images/bbq.jpg}" alt="바베큐존">
             </div>
         </div>
 

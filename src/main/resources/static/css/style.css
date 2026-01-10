@@ -118,6 +118,7 @@ ul { list-style: none; }
     display: flex;
     /* 네비게이션 버튼들 사이의 간격 */
     gap: 12px;
+    gap: 12px;
 }
 
 .nav-menu .btn-primary {
@@ -173,22 +174,64 @@ ul { list-style: none; }
 /* =========================================
    4. 히어로 섹션 (Hero Sections)
    ========================================= */
-/* 메인 홈 히어로 */
+/* --- 히어로 섹션 (Hero Section) --- */
 .hero {
-    position: relative; height: 600px; color: white;
-    display: flex; align-items: center; text-align: center;
-    overflow: hidden; margin-top: -1px;
+    position: relative;
+    height: 600px;
+    color: white;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    overflow: hidden;
+    margin-top: -1px;
 }
-.hero-bg {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background-image: url('https://images.unsplash.com/photo-1587061949409-02df41d5e562?q=80&w=2070&auto=format&fit=crop');
-    background-size: cover; background-position: center;
-    z-index: -2; filter: brightness(0.8); transform: scale(1.02);
-}
-.hero-content { z-index: 1; max-width: 800px; }
-.hero-title { font-size: 3.5rem; font-weight: 800; margin-bottom: 20px; line-height: 1.2; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-.hero-subtitle { font-size: 1.25rem; margin-bottom: 40px; opacity: 0.9; }
 
+.hero-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    /* HTML에서 인라인 스타일로 이미지를 넣었으므로 여기서는 설정 유지 */
+    /* background-image: url('...'); */
+
+    background-size: cover;
+    background-position: center;
+    z-index: -2;
+
+    /* ✅ 핵심 수정 1: 배경을 훨씬 어둡게(0.8 -> 0.45) 하고, 살짝 흐리게(blur) 처리 */
+    filter: brightness(0.45) blur(3px);
+
+    transform: scale(1.05); /* 블러 처리 시 테두리 번짐 방지를 위해 스케일 약간 확대 */
+}
+
+/* ✅ 배경이 어두워졌으니 컨텐츠가 잘 보임 */
+.hero-content {
+    z-index: 1;
+    max-width: 800px;
+    position: relative;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+    line-height: 1.2;
+
+    /* ✅ 핵심 수정 2: 텍스트 그림자를 더 진하고 넓게 설정 */
+    text-shadow: 0 4px 15px rgba(0,0,0,0.8);
+}
+
+.hero-subtitle {
+    font-size: 1.3rem; /* 크기 약간 키움 */
+    margin-bottom: 40px;
+    opacity: 1; /* 투명도 제거 (선명하게) */
+    font-weight: 500; /* 굵기 약간 추가 */
+
+    /* ✅ 핵심 수정 3: 서브 타이틀에도 그림자 추가 */
+    text-shadow: 0 2px 10px rgba(0,0,0,0.7);
+}
 /* 서브 페이지 히어로 공통 */
 .page-hero {
     position: relative; height: 400px;
@@ -204,40 +247,67 @@ ul { list-style: none; }
 .page-title { font-size: 2.5rem; font-weight: 800; margin-bottom: 16px; }
 .page-subtitle { font-size: 1.1rem; opacity: 0.9; }
 
-/* 페이지별 배경 이미지 */
-.room-hero { background-image: url('https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=2070&auto=format&fit=crop'); }
-.info-hero { background-image: url('https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=2069&auto=format&fit=crop'); }
-.reserve-hero { background-image: url('https://images.unsplash.com/photo-1506059612708-99d6c258160e?q=80&w=2069&auto=format&fit=crop'); }
-.directions-hero { background-image: url('https://images.unsplash.com/photo-1464207687429-7505649dae38?q=80&w=2073&auto=format&fit=crop'); }
-
 /* 공통 섹션 스타일 */
 .section { padding: 80px 0; }
 .section-header { text-align: center; margin-bottom: 60px; }
 .section-title { font-size: 2rem; font-weight: 700; margin-bottom: 16px; }
 .section-desc { color: var(--text-medium); max-width: 600px; margin: 0 auto; }
-
 /* =========================================
    5. 페이지: 객실 안내 (Rooms)
    ========================================= */
-/* 이미지 갤러리 */
+
+/* 이미지 갤러리 레이아웃 수정 */
 .room-gallery {
-    display: grid; grid-template-columns: 2fr 1fr; gap: 10px;
-    margin-bottom: 50px; height: 500px;
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* 큰 이미지(2) : 작은 이미지들(1) 비율 */
+    gap: 10px;
+    margin-bottom: 60px; /* 갤러리와 아래 상세 정보 사이의 여백을 넉넉하게 추가 */
+    /* height: 500px;  <-- 이 고정 높이 설정을 제거합니다! */
+    /* 대신, 이미지의 비율(aspect-ratio)을 사용하여 높이를 제어합니다. */
 }
+
+/* 갤러리 이미지 공통 설정 */
+.room-gallery img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* 비율 유지하며 꽉 채우기 */
+    display: block;
+}
+
+/* 메인 이미지 (왼쪽) */
+.gallery-main {
+    /* 메인 이미지 영역의 높이를 확보합니다. (예: 500px) */
+    /* 혹은 aspect-ratio를 사용하여 반응형으로 만들 수도 있습니다. */
+    height: 500px;
+}
+
 .gallery-main img {
-    width: 100%; height: 100%; object-fit: cover; border-radius: 8px 0 0 8px;
+    border-radius: 8px 0 0 8px;
 }
+
+/* 서브 이미지 그리드 (오른쪽 4개) */
 .gallery-sub {
-    display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 10px;
+    height: 500px; /* 메인 이미지와 동일한 높이로 설정하여 그리드 균형 맞춤 */
 }
-.gallery-sub img {
-    width: 100%; height: 100%; object-fit: cover;
-}
+
+/* 서브 이미지 둥근 모서리 처리 */
 .gallery-sub img:nth-child(2) { border-radius: 0 8px 0 0; }
 .gallery-sub img:last-child { border-radius: 0 0 8px 0; }
 
-/* 객실 상세 정보 */
-.room-details-container { display: flex; gap: 50px; align-items: flex-start; }
+
+/* 객실 상세 정보 레이아웃 (기존 유지, margin-top 추가 가능) */
+.room-details-container {
+    display: flex;
+    gap: 50px;
+    align-items: flex-start;
+    /* 만약 위에서 margin-bottom을 줬는데도 겹친다면, 여기서 margin-top을 추가하세요 */
+    /* margin-top: 50px; */
+}
+
 .room-info-box { flex: 2; }
 .info-title {
     font-size: 1.5rem; font-weight: 700; margin-bottom: 15px;
@@ -559,12 +629,37 @@ ul { list-style: none; }
    11. 반응형 (Media Queries)
    ========================================= */
 @media (max-width: 900px) {
-    .room-gallery { height: auto; grid-template-columns: 1fr; }
-    .gallery-sub { display: none; }
     .room-details-container { flex-direction: column; }
     .booking-container { flex-direction: column; }
     .room-sidebar, .booking-sidebar { width: 100%; }
     .amenities-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 900px) {
+    .room-gallery {
+        grid-template-columns: 1fr; /* 1열로 변경 */
+        height: auto; /* 높이 자동 */
+    }
+
+    .gallery-main {
+        height: auto; /* 높이 자동 해제 */
+    }
+
+    .gallery-main img {
+        height: 300px; /* 모바일에서 메인 이미지 높이 */
+        border-radius: 8px 8px 0 0;
+    }
+
+    /* 모바일에서는 서브 이미지 그리드도 높이 자동 */
+    .gallery-sub {
+        height: auto;
+        grid-template-columns: repeat(2, 1fr); /* 2열로 작은 이미지 표시 */
+    }
+
+    .gallery-sub img {
+        height: 150px; /* 작은 이미지 높이 지정 */
+        border-radius: 0;
+    }
 }
 
 @media (max-width: 768px) {

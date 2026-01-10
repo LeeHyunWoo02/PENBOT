@@ -7,7 +7,7 @@
 <header th:replace="~{fragments/header :: common-header}"></header>
 
 <main>
-    <section class="page-hero info-hero">
+    <section class="page-hero info-hero" th:style="|background-image: url('@{/images/secondfloor.jpg}');|">
         <div class="page-hero-overlay"></div>
         <div class="container page-hero-content">
             <h1 class="page-title">Reservation Guide</h1>
@@ -30,7 +30,7 @@
                 </div>
                 <div class="account-item">
                     <span class="label">예금주</span>
-                    <span class="value">이미영/span>
+                    <span class="value">이미영</span>
                 </div>
             </div>
             <p class="policy-note text-center mt-20">
