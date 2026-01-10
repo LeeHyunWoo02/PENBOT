@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // ... (Previous variable declarations remain the same) ...
     const calendarGrid = document.getElementById('calendar-grid');
     const currentMonthEl = document.getElementById('current-month-year');
     const selectedDateDisplay = document.getElementById('selected-date-display');
@@ -8,12 +9,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnCheckAvail = document.getElementById('btn-check-avail');
     const btnSubmit = document.getElementById('btn-submit-booking');
 
-    // 모달 요소
     const bookingModal = document.getElementById('booking-modal');
     const btnCloseModal = document.getElementById('btn-close-modal');
     const btnFinalRequest = document.getElementById('btn-final-request');
 
-    // 모달 내부 & 입력 필드
     const modalDate = document.getElementById('modal-date');
     const modalGuests = document.getElementById('modal-guests');
     const modalPrice = document.getElementById('modal-price');
@@ -23,37 +22,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputPassword = document.getElementById('booker-password');
     const inputRequest = document.getElementById('booker-request');
 
-    let currentDate = new Date(); // 현재 보고 있는 달
-    let selectedDate = null; // 사용자가 선택한 날짜
+    let currentDate = new Date();
+    let selectedDate = null;
 
-    // ==========================================
-    // 2. 초기화 및 이벤트 리스너
-    // ==========================================
-
-    // 페이지 로드 시 캘린더 데이터 가져와서 그리기
     updateCalendarWithAvailability(currentDate);
 
-    // 이전 달 버튼
     document.getElementById('prev-month').addEventListener('click', () => {
         currentDate.setMonth(currentDate.getMonth() - 1);
         updateCalendarWithAvailability(currentDate);
     });
 
-    // 다음 달 버튼
     document.getElementById('next-month').addEventListener('click', () => {
         currentDate.setMonth(currentDate.getMonth() + 1);
         updateCalendarWithAvailability(currentDate);
     });
 
-    // ==========================================
-    // 3. 핵심 로직: API 호출 후 캘린더 렌더링
-    // ==========================================
-
     function updateCalendarWithAvailability(date) {
         const year = date.getFullYear();
-        const month = date.getMonth() + 1; // 1~12월
+        const month = date.getMonth() + 1;
 
-        // API 호출
         fetch(`/api/bookings/unavailable?year=${year}&month=${month}`)
             .then(res => {
                 if(!res.ok) throw new Error("Failed to fetch dates");
@@ -80,7 +67,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const firstDay = new Date(year, month, 1).getDay();
         const lastDate = new Date(year, month + 1, 0).getDate();
 
-        // 빈 칸 채우기
         for (let i = 0; i < firstDay; i++) {
             const emptyCell = document.createElement('div');
             calendarGrid.appendChild(emptyCell);
@@ -90,13 +76,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const dayCell = document.createElement('div');
             dayCell.classList.add('day-cell');
 
+            const currentDayObj = new Date(year, month, i);
+            const checkDay = currentDayObj.getDay(); // 0:Sun, 1:Mon, ..., 6:Sat
             const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-
             const isUnavailable = unavailableDates.includes(dateStr);
 
             const dayNumber = document.createElement('div');
             dayNumber.classList.add('day-number');
             dayNumber.innerText = i;
+
+            if (checkDay === 0) { // Sunday
+                dayNumber.style.color = "#ef4444"; // Red
+            } else if (checkDay === 6) { // Saturday
+                dayNumber.style.color = "#3b82f6"; // Blue
+            }
 
             const dayPrice = document.createElement('div');
             dayPrice.classList.add('day-price');
@@ -106,16 +99,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 dayPrice.innerText = "마감";
                 dayPrice.style.color = "#ef4444";
             } else {
-                const checkDay = new Date(year, month, i).getDay();
-                let price = (checkDay === 5 || checkDay === 6) ? "250,000" : "150,000";
-                dayPrice.innerText = price;
+                let priceRaw;
+                if (checkDay === 5) { // Friday
+                    priceRaw = "750,000";
+                } else if (checkDay === 6) { // Saturday
+                    priceRaw = "1,100,000";
+                } else if (checkDay === 0) { // Sunday
+                    priceRaw = "550,000";
+                } else { // Mon(1) ~ Thu(4)
+                    priceRaw = "550,000";
+                }
+
+                dayPrice.innerText = priceRaw;
 
                 dayCell.addEventListener('click', () => {
                     document.querySelectorAll('.day-cell.selected').forEach(el => el.classList.remove('selected'));
                     dayCell.classList.add('selected');
 
                     selectedDate = new Date(year, month, i);
-                    updateSidebar(selectedDate, price);
+                    updateSidebar(selectedDate, priceRaw);
                 });
             }
 
@@ -125,6 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // ... (updateSidebar and rest of the code remains the same) ...
     function updateSidebar(date, priceStr) {
         const formattedDate = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
         selectedDateDisplay.innerText = formattedDate;
@@ -138,12 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnSubmit.style.display = 'block';
     }
 
-
-    // ==========================================
-    // 4. 모달 및 예약 요청 로직
-    // ==========================================
-
-    // 모달 띄우기
+    // ... (Modal logic remains the same) ...
     btnSubmit.addEventListener('click', () => {
         if (!selectedDate) {
             alert("날짜를 선택해주세요.");
@@ -169,7 +167,6 @@ document.addEventListener('DOMContentLoaded', () => {
             alert("비밀번호는 숫자 4자리여야 합니다."); return;
         }
 
-        // 날짜 포맷
         const checkInString = modalDate.innerText;
         const startDateObj = new Date(checkInString);
         const endDateObj = new Date(startDateObj);

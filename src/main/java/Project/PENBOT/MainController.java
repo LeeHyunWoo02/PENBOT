@@ -29,9 +29,4 @@ public class MainController {
     public String reserve() {
         return "reserve";
     }
-//
-//    @GetMapping("/chat")
-//    public String chat() {
-//        return "chat"; // templates/chat.html
-//    }
 }
