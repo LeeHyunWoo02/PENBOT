@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/head :: common-head(title='CozyStay - 오시는 길')}"></head>
+
+<body>
+
+<header th:replace="~{fragments/header :: common-header}"></header>
+
+<main>
+    <section class="page-hero directions-hero">
+        <div class="page-hero-overlay"></div>
+        <div class="container page-hero-content">
+            <h1 class="page-title">Directions</h1>
+            <p class="page-subtitle">CozyStay로 오시는 가장 빠른 길을 안내해 드립니다.</p>
+        </div>
+    </section>
+
+    <section class="section container">
+
+        <div class="map-container">
+            <div id="map" class="map-placeholder">
+                <img src="https://via.placeholder.com/1200x500/e5e7eb/9ca3af?text=Naver+Map+Loading..." alt="지도 영역">
+            </div>
+        </div>
+
+        <div class="directions-info-block">
+            <h2 class="sub-title">Address</h2>
+            <div class="address-box">
+                <div class="address-row">
+                    <span class="addr-label">도로명 주소</span>
+                    <span class="addr-value">경기도 가평군 설악면 설악로 1234-5 CozyStay</span>
+                </div>
+                <div class="address-row">
+                    <span class="addr-label">지번 주소</span>
+                    <span class="addr-value">경기도 가평군 설악면 사룡리 6789</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="directions-info-block">
+            <h2 class="sub-title">Transportation</h2>
+            <div class="transport-list">
+                <div class="transport-item">
+                    <div class="trans-icon"><i class="fa-solid fa-car"></i></div>
+                    <div class="trans-text">
+                        <h3>자가용 이용 시 (By Car)</h3>
+                        <p>설악 IC에서 나와서 설악로를 따라 약 15분간 직진하세요. 가평대교를 건너기 전 우측 샛길로 진입하시면 됩니다.</p>
+                    </div>
+                </div>
+                <div class="transport-item">
+                    <div class="trans-icon"><i class="fa-solid fa-bus"></i></div>
+                    <div class="trans-text">
+                        <h3>대중교통 이용 시 (Public Transport)</h3>
+                        <p>가평역에서 10-4번 버스 탑승 후 '설악면 사무소' 정류장에서 하차하세요. 펜션까지 도보로 약 5분 소요됩니다.</p>
+                    </div>
+                </div>
+                <div class="transport-item">
+                    <div class="trans-icon"><i class="fa-solid fa-person-walking"></i></div>
+                    <div class="trans-text">
+                        <h3>도보 이동 시 (Walking)</h3>
+                        <p>마을 입구에서 강변 산책로를 따라 들어오시면 맑은 공기와 함께 CozyStay 간판을 찾으실 수 있습니다.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="directions-info-block no-border">
+            <h2 class="sub-title">Navigation App</h2>
+            <p class="section-desc" style="text-align: left; margin: 0 0 20px 0;">
+                아래 버튼을 누르면 각 네비게이션 앱으로 목적지가 자동 설정됩니다.
+            </p>
+            <div class="map-app-buttons">
+                <a href="#" class="map-btn kakao">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/e/e3/KakaoTalk_logo.svg" alt="Kakao" width="20">
+                    카카오맵
+                </a>
+                <a href="#" class="map-btn naver">
+                    <span style="font-weight:900; color:white;">N</span>
+                    네이버 지도
+                </a>
+                <a href="#" class="map-btn tmap">
+                    <span style="font-weight:900; color:#E60012;">T</span>
+                    티맵
+                </a>
+            </div>
+        </div>
+
+    </section>
+</main>
+
+<footer th:replace="~{fragments/footer :: common-footer}"></footer>
+
+</body>
+</html>

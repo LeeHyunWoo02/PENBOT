@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/head :: common-head(title='CozyStay - 홈')}"></head>
+
+<body>
+
+<header th:replace="~{fragments/header :: common-header}"></header>
+
+<main>
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="container hero-content">
+            <h1 class="hero-title">
+                자연 속 온전한 쉼,<br>
+                CozyStay에 오신 것을 환영합니다.
+            </h1>
+            <p class="hero-subtitle">
+                따뜻한 환대와 아늑한 공간이 여러분을 기다립니다.<br>
+                사랑하는 사람들과 잊지 못할 추억을 만들어보세요.
+            </p>
+            <a th:href="@{/roomInfo}" class="btn btn-primary" style="padding: 16px 32px; font-size: 1.1rem;">
+                객실 둘러보기
+            </a>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/footer :: common-footer}"></footer>
+
+</body>
+</html>

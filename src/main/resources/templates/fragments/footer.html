@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<footer th:fragment="common-footer" class="footer">
+    <div class="container">
+        <div class="footer-bottom">
+            <p>&copy; 2026 CozyStay. All rights reserved.</p>
+        </div>
+    </div>
+
+    <button id="chatbot-opener" class="chat-fab">
+        <i class="fa-regular fa-comments" style="font-size: 1.2rem;"></i>
+        <span>문의하기</span>
+    </button>
+
+    <div id="chat-popup" class="chat-popup hidden">
+        <div class="chat-window-header">
+            <div class="bot-profile">
+                <div class="bot-avatar"><i class="fa-solid fa-robot"></i></div>
+                <div class="bot-info">
+                    <h2>CozyStay AI</h2>
+                    <span class="status-dot"></span><span>Online</span>
+                </div>
+            </div>
+            <button id="chatbot-closer" class="btn-close-chat">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div id="chat-history" class="chat-history">
+            <div class="message bot">
+                <div class="message-content">
+                    안녕하세요! CozyStay AI 매니저입니다. 😊<br>
+                    무엇을 도와드릴까요?
+                </div>
+                <span class="message-time">방금 전</span>
+            </div>
+        </div>
+
+        <div class="chat-input-area">
+            <input type="text" id="user-input" placeholder="문의 내용을 입력하세요..." autocomplete="off">
+            <button id="btn-send" class="btn-send">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <script th:src="@{/js/chat-popup.js}"></script>
+</footer>
+
+</body>
+</html>
