@@ -4,9 +4,15 @@
 
 <footer th:fragment="common-footer" class="footer">
     <div class="container">
+
         <div class="footer-bottom">
-            <p>&copy; 2026 CozyStay. All rights reserved.</p>
+            <button id="admin-login-opener" class="admin-login-btn">
+                <i class="fa-solid fa-lock"></i> 관리자 로그인
+            </button>
+
+            <p class="copyright">&copy; 2026 CozyStay. All rights reserved.</p>
         </div>
+
     </div>
 
     <button id="chatbot-opener" class="chat-fab">
@@ -27,7 +33,6 @@
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
-
         <div id="chat-history" class="chat-history">
             <div class="message bot">
                 <div class="message-content">
@@ -37,7 +42,6 @@
                 <span class="message-time">방금 전</span>
             </div>
         </div>
-
         <div class="chat-input-area">
             <input type="text" id="user-input" placeholder="문의 내용을 입력하세요..." autocomplete="off">
             <button id="btn-send" class="btn-send">
@@ -46,8 +50,39 @@
         </div>
     </div>
 
+    <div id="admin-login-modal" class="modal-overlay hidden">
+        <div class="modal-content login-modal-content">
+            <div class="modal-header">
+                <h3>관리자 로그인</h3>
+                <button id="admin-login-closer" class="btn-close-modal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="admin-login-form">
+                    <div class="form-group">
+                        <label for="admin-id">아이디</label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-user"></i>
+                            <input type="text" id="admin-id" placeholder="Admin ID" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="admin-pw">비밀번호</label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-lock"></i>
+                            <input type="password" id="admin-pw" placeholder="Password" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary full-width" style="margin-top: 20px;">
+                        로그인
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script th:src="@{/js/chat-popup.js}"></script>
-</footer>
+    <script th:src="@{/js/admin-login.js}"></script> </footer>
 
 </body>
 </html>
