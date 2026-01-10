@@ -27,6 +27,11 @@ public class MainController {
 
     @GetMapping("/reserve")
     public String reserve() {
-        return "reserve"; // templates/reserve.html
+        return "reserve";
     }
+//
+//    @GetMapping("/chat")
+//    public String chat() {
+//        return "chat"; // templates/chat.html
+//    }
 }
