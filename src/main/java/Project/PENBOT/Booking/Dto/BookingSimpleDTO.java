@@ -18,4 +18,5 @@ public class BookingSimpleDTO {
     private String name;
     @Nullable
     private String phone;
+    private String email;
 }

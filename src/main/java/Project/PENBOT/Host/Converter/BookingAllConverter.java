@@ -14,6 +14,8 @@ public class BookingAllConverter {
                         .endDate(booking.getEndDate())
                         .headcount(booking.getHeadcount())
                         .status(booking.getStatus())
+                        .guestName(booking.getGuestName())
+                        .guestPhone(booking.getGuestPhone())
                         .build())
                 .toList();
     }

@@ -14,9 +14,10 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class BookingListResponseDTO {
     private int bookingId;
-    private String name;
+    private String guestName;
     private LocalDate startDate;
     private LocalDate endDate;
     private int headcount;
     private BookStatus status;
+    private String guestPhone;
 }
