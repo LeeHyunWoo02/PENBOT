@@ -617,6 +617,20 @@ ul { list-style: none; }
     cursor: pointer; transition: all 0.2s;
     position: relative;
 }
+/* 예약 마감된 날짜 스타일 */
+.day-cell.disabled {
+    background-color: #f3f4f6; /* 회색 배경 */
+    color: #9ca3af;            /* 흐린 글씨 */
+    cursor: not-allowed;       /* 금지 커서 */
+    pointer-events: none;      /* 클릭 아예 방지 */
+    border-color: #eee;
+}
+
+/* 마감된 날짜는 호버 효과 제거 */
+.day-cell.disabled:hover {
+    border-color: #eee;
+    background-color: #f3f4f6;
+}
 
 .day-cell:hover:not(.disabled) {
     border-color: var(--primary-color);
