@@ -909,3 +909,14 @@ ul { list-style: none; }
         bottom: 20px; right: 20px;
     }
 }
+
+/* 타이핑 효과 애니메이션 */
+.typing-dots {
+    animation: blink 1.4s infinite both;
+}
+
+@keyframes blink {
+    0% { opacity: 0.2; }
+    20% { opacity: 1; }
+    100% { opacity: 0.2; }
+}
