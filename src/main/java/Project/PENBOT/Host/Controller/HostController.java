@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "호스트(관리자) API", description = "관리자용 예약 관리, 유저 관리 기능 제공")
 @RestController
 @Slf4j
 @RequestMapping("/api/host")
@@ -31,11 +30,6 @@ public class HostController {
     /**
      * 예약 모든 내역 조회
      * */
-    @Operation(summary = "예약 모든 내역 조회", description = "예약 모든 내역을 조회합니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "예약 정보 조회 성공"),
-            @ApiResponse(responseCode = "404", description = "예약 정보 조회 실패")
-    })
     @GetMapping("/bookings")
     public ResponseEntity<List<BookingListResponseDTO>> getAllBookings(){
         List<BookingListResponseDTO> response = hostService.getBookingAll();
@@ -45,11 +39,6 @@ public class HostController {
     /**
      * 예약 상세 조회
      * */
-    @Operation(summary = "예약 상세 조회", description = "예약 ID로 예약 상세 정보를 조회합니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "예약 정보 조회 성공"),
-            @ApiResponse(responseCode = "404", description = "예약 정보 조회 실패")
-    })
     @GetMapping("/bookings/{bookingId}")
     public ResponseEntity<BookingSimpleDTO> getBookingInfo(@PathVariable int bookingId){
         BookingSimpleDTO responseDTO = hostService.getBookingInfo(bookingId);
@@ -61,11 +50,6 @@ public class HostController {
      * 날짜, 인원수 변경
      * 예약 상태 변경 ( 대기 -> 승인 )
      * */
-    @Operation(summary = "예약 수정", description = "예약의 날짜, 인원, 상태를 수정합니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "예약 정보 수정 성공"),
-            @ApiResponse(responseCode = "400", description = "예약 정보 수정 실패")
-    })
     @PutMapping("/bookings/{bookingId}")
     public ResponseEntity<BookingResponseDTO> updateBooking(@PathVariable int bookingId,
                                                             @RequestBody BookingUpdateRequestDTO request){
@@ -88,12 +72,6 @@ public class HostController {
     /**
      * 예약 삭제
      * */
-    @Operation(summary = "예약 삭제", description = "예약 ID로 예약을 삭제합니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "예약 삭제 성공"),
-            @ApiResponse(responseCode = "400", description = "예약 삭제 실패"),
-            @ApiResponse(responseCode = "404", description = "해당 예약 정보가 없습니다."),
-    })
     @DeleteMapping("/bookings/{bookingId}")
     public ResponseEntity<BookingResponseDTO> deleteBooking(@PathVariable int bookingId){
         try{
