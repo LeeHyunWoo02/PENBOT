@@ -2,8 +2,8 @@
    1. 기본 설정 및 변수 (Variables & Reset)
    ========================================= */
 :root {
-    --primary-color: #2563EB; /* 메인 파란색 */
-    --primary-hover: #1D4ED8;
+    --primary-color: #1cb6f1; /* 메인 파란색 */
+    --primary-hover: #c3eeff;
     --text-dark: #111827;
     --text-medium: #4B5563;
     --text-light: #9CA3AF;
@@ -46,6 +46,7 @@ ul { list-style: none; }
 }
 .btn-primary { background-color: var(--primary-color); color: white; }
 .btn-primary:hover {
+    color: white;
     background-color: var(--primary-hover);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
