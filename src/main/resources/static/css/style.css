@@ -626,6 +626,28 @@ ul { list-style: none; }
 .input-with-icon i { position: absolute; left: 15px; color: #9ca3af; }
 .input-with-icon input { padding-left: 40px; }
 
+
+/* 입력창 + 버튼을 한 줄에 배치하는 레이아웃 */
+.input-group-row {
+    display: flex;
+    gap: 10px;
+}
+
+.input-group-row input {
+    flex: 1; /* 입력창이 남은 공간 차지 */
+}
+
+.btn-sm {
+    padding: 0 15px; /* 버튼 좌우 여백 */
+    font-size: 0.9rem;
+    white-space: nowrap; /* 줄바꿈 방지 */
+    height: 45px; /* input 높이와 맞춤 (style.css의 input padding/border 고려) */
+}
+
+/* 인증 성공/실패 메시지 색상 */
+.text-success { color: #10b981; }
+.text-error { color: #ef4444; }
+
 /* =========================================
    11. 반응형 (Media Queries)
    ========================================= */

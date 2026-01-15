@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // ... (Previous variable declarations remain the same) ...
     const calendarGrid = document.getElementById('calendar-grid');
     const currentMonthEl = document.getElementById('current-month-year');
     const selectedDateDisplay = document.getElementById('selected-date-display');
@@ -18,9 +17,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalPrice = document.getElementById('modal-price');
     const inputName = document.getElementById('booker-name');
     const inputPhone = document.getElementById('booker-phone');
+    const btnSendCode = document.getElementById('btn-send-code');
+    const verifyGroup = document.getElementById('verify-group');
+    const inputVerifyCode = document.getElementById('verify-code');
+    const btnCheckCode = document.getElementById('btn-check-code');
+    const verifyMessage = document.getElementById('verify-message');
+    let isPhoneVerified = false;
     const inputEmail = document.getElementById('booker-email');
     const inputPassword = document.getElementById('booker-password');
-    const inputRequest = document.getElementById('booker-request');
+    // const inputRequest = document.getElementById('booker-request');
 
     let currentDate = new Date();
     let selectedDate = null;
@@ -127,7 +132,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // ... (updateSidebar and rest of the code remains the same) ...
     function updateSidebar(date, priceStr) {
         const formattedDate = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
         selectedDateDisplay.innerText = formattedDate;
@@ -141,7 +145,6 @@ document.addEventListener('DOMContentLoaded', () => {
         btnSubmit.style.display = 'block';
     }
 
-    // ... (Modal logic remains the same) ...
     btnSubmit.addEventListener('click', () => {
         if (!selectedDate) {
             alert("날짜를 선택해주세요.");
@@ -157,12 +160,97 @@ document.addEventListener('DOMContentLoaded', () => {
         bookingModal.classList.remove('hidden');
     });
 
+    btnSendCode.addEventListener('click', () => {
+        const phone = inputPhone.value.replace(/[^0-9]/g, '');
+
+        if (phone.length < 10) {
+            alert("휴대폰 번호를 올바르게 입력해주세요.");
+            return;
+        }
+
+        // 인증번호 발송 API 호출
+        fetch('/api/verify/sendcode', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone: phone })
+        })
+            .then(res => {
+                if (!res.ok) throw new Error("전송 실패");
+                return res.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    alert("인증번호가 발송되었습니다.");
+                    verifyGroup.style.display = 'block';
+                    inputVerifyCode.focus();
+
+                    btnSendCode.innerText = "재전송";
+                    isPhoneVerified = false;
+                } else {
+                    alert(data.message || "발송 실패");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("서버 오류가 발생했습니다.");
+            });
+    });
+
+    btnCheckCode.addEventListener('click', () => {
+        const phone = inputPhone.value.replace(/[^0-9]/g, '');
+        const code = inputVerifyCode.value;
+
+        if (!code) {
+            alert("인증번호를 입력해주세요.");
+            return;
+        }
+
+        fetch('/api/verify/verifycode', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone: phone, code: code })
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    verifyMessage.innerText = "인증되었습니다.";
+                    verifyMessage.className = "text-success";
+
+                    isPhoneVerified = true;
+
+                    inputPhone.disabled = true;
+                    btnSendCode.disabled = true;
+                    inputVerifyCode.disabled = true;
+                    btnCheckCode.disabled = true;
+                } else {
+                    // 인증 실패 처리
+                    verifyMessage.innerText = "인증번호가 일치하지 않습니다.";
+                    verifyMessage.className = "text-error";
+                    isPhoneVerified = false;
+                }
+            })
+            .catch(err => {
+                alert("인증 확인 중 오류가 발생했습니다.");
+            });
+    });
+
     btnCloseModal.addEventListener('click', () => bookingModal.classList.add('hidden'));
 
     btnFinalRequest.addEventListener('click', () => {
         if(!inputName.value || !inputPhone.value || !inputPassword.value) {
             alert("필수 정보를 모두 입력해주세요."); return;
         }
+
+        if (!isPhoneVerified) {
+            alert("휴대폰 인증을 완료해주세요.");
+            if(verifyGroup.style.display === 'none') {
+                inputPhone.focus();
+            } else {
+                inputVerifyCode.focus();
+            }
+            return;
+        }
+
         if(inputPassword.value.length !== 4 || isNaN(inputPassword.value)) {
             alert("비밀번호는 숫자 4자리여야 합니다."); return;
         }
@@ -201,5 +289,19 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
         bookingModal.classList.add('hidden');
+    });
+
+    btnCloseModal.addEventListener('click', () => {
+        bookingModal.classList.add('hidden');
+
+        verifyGroup.style.display = 'none';
+        inputVerifyCode.value = '';
+        verifyMessage.innerText = '';
+        inputPhone.disabled = false;
+        btnSendCode.disabled = false;
+        inputVerifyCode.disabled = false;
+        btnCheckCode.disabled = false;
+        btnSendCode.innerText = "인증번호 발송";
+        isPhoneVerified = false;
     });
 });

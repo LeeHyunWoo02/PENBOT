@@ -116,7 +116,19 @@
 
                 <div class="form-group">
                     <label for="booker-phone">연락처</label>
-                    <input type="tel" id="booker-phone" placeholder="010-1234-5678" required>
+                    <div class="input-group-row">
+                        <input type="tel" id="booker-phone" placeholder="01012345678" required>
+                        <button type="button" id="btn-send-code" class="btn btn-primary btn-sm">인증번호 발송</button>
+                    </div>
+                </div>
+
+                <div class="form-group" id="verify-group" style="display: none;">
+                    <label for="verify-code">인증번호</label>
+                    <div class="input-group-row">
+                        <input type="text" id="verify-code" placeholder="인증번호 6자리" maxlength="6">
+                        <button type="button" id="btn-check-code" class="btn btn-outline btn-sm">확인</button>
+                    </div>
+                    <small id="verify-message" style="margin-top: 5px; display: block;"></small>
                 </div>
 
                 <div class="form-group">
