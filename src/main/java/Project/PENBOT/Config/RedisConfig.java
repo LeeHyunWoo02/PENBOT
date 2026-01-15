@@ -13,8 +13,8 @@ public class RedisConfig {
     @Bean
     public RestTemplate restTemplate() {
         var factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(Duration.ofSeconds(5));
-        factory.setReadTimeout(Duration.ofSeconds(25));
+        factory.setConnectTimeout(Duration.ofSeconds(60));
+        factory.setReadTimeout(Duration.ofSeconds(60));
         return new RestTemplate(factory);
     }
 }

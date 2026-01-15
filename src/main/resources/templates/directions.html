@@ -18,9 +18,7 @@
     <section class="section container">
 
         <div class="map-container">
-            <div id="map" class="map-placeholder">
-                <img src="https://via.placeholder.com/1200x500/e5e7eb/9ca3af?text=Naver+Map+Loading..." alt="지도 영역">
-            </div>
+            <div id="map" style="width:100%; height:100%;"></div>
         </div>
 
         <div class="directions-info-block">
@@ -82,6 +80,10 @@
 </main>
 
 <footer th:replace="~{fragments/footer :: common-footer}"></footer>
+
+<script type="text/javascript" src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=rsp6czfhye"></script>
+
+<script th:src="@{/js/map.js}"></script>
 
 </body>
 </html>

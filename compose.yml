@@ -12,11 +12,8 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mariadb:3306/penbot?useSSL=false&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD}
-
       - SPRING_DATA_REDIS_HOST=redis
       - SPRING_DATA_REDIS_PORT=6379
-
-      # 기타 필수 변수 매핑
       - OPENAI_API_KEY=${OPENAI_API_KEY}
     depends_on:
       mariadb:
@@ -61,6 +58,10 @@ services:
       - "6379:6379"
     volumes:
       - ./redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 10
     deploy:
       resources:
         limits:
