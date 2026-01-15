@@ -27,6 +27,7 @@ public class BookingConverter {
     public static BookingSimpleDTO toDTO(Booking booking) {
         return BookingSimpleDTO.builder()
                 .bookingId(booking.getId())
+                .email(booking.getGuestEmail())
                 .startDate(booking.getStartDate().toString())
                 .endDate(booking.getEndDate().toString())
                 .status(booking.getStatus())

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/head :: common-head(title='라온아띠 - 관리자 대시보드')}"></head>
+
+<body>
+<div class="admin-layout">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <i class="fa-solid fa-hotel"></i> <span>Admin</span>
+        </div>
+        <nav class="sidebar-menu">
+            <a href="#" class="menu-item active"><i class="fa-solid fa-chart-line"></i> 대시보드</a>
+        </nav>
+        <div class="sidebar-footer">
+            <a th:href="@{/}" class="menu-item logout"><i class="fa-solid fa-arrow-right-from-bracket"></i> 나가기</a>
+        </div>
+    </aside>
+
+    <main class="admin-content">
+        <header class="admin-header">
+            <h2>Dashboard</h2>
+            <div class="admin-profile">
+                <span>관리자님</span>
+                <div class="avatar"><i class="fa-solid fa-user"></i></div>
+            </div>
+        </header>
+
+        <div class="dashboard-container">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>총 예약 건수</h3>
+                    <p class="stat-value highlight" id="stat-total-count">0건</p>
+                </div>
+            </div>
+
+            <section class="admin-section">
+                <div class="section-header">
+                    <h3>전체 예약 목록</h3>
+                    <button class="btn-sm btn-outline" onclick="loadBookings()">새로고침</button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="admin-table hover-table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>예약자명</th>
+                            <th>연락처</th>
+                            <th>일정</th>
+                            <th>인원</th>
+                            <th>상태</th>
+                            <th>관리</th>
+                        </tr>
+                        </thead>
+                        <tbody id="booking-list-body">
+                        <tr><td colspan="7" style="text-align:center;">로딩 중...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="admin-section">
+                <div class="section-header">
+                    <h3>객실/날짜 차단 관리</h3>
+                </div>
+                <div class="block-date-form-wrapper">
+                    <form id="block-date-form" class="admin-form-row">
+                        <div class="form-group">
+                            <label>시작 날짜</label>
+                            <input type="date" id="block-start" required>
+                        </div>
+                        <div class="form-group">
+                            <label>종료 날짜</label>
+                            <input type="date" id="block-end" required>
+                        </div>
+                        <div class="form-group">
+                            <label>사유</label>
+                            <input type="text" id="block-reason" placeholder="예: 내부 수리" required>
+                        </div>
+                        <button type="submit" class="btn btn-danger">차단하기</button>
+                    </form>
+                </div>
+                <div class="blocked-list">
+                    <h4>현재 차단된 날짜</h4>
+                    <ul id="blocked-dates-ul">
+                    </ul>
+                </div>
+            </section>
+        </div>
+    </main>
+</div>
+
+<div id="booking-detail-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>예약 상세 정보</h3>
+            <button onclick="closeDetailModal()" class="btn-close-modal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div class="modal-body">
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <span class="label">예약 번호</span>
+                    <span class="value" id="detail-id">-</span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">상태</span>
+                    <span class="value" id="detail-status">-</span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">예약자명</span>
+                    <span class="value" id="detail-name">-</span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">연락처</span>
+                    <span class="value" id="detail-phone">-</span>
+                </div>
+                <div class="detail-item full">
+                    <span class="label">이메일</span>
+                    <span class="value" id="detail-email">-</span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">체크인</span>
+                    <span class="value" id="detail-start">-</span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">체크아웃</span>
+                    <span class="value" id="detail-end">-</span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">인원</span>
+                    <span class="value" id="detail-headcount">-</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer" id="detail-actions">
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/admin.js}"></script>
+</body>
+</html>

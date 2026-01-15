@@ -31,6 +31,6 @@ public class BookingRequestDTO {
     @Schema(description = "게스트 전화번호", example = "010-1234-5678", required = true)
     private String guestPhone;
 
-    @Schema(description = "게스트 이메일", example = "exmaple@naver.com", required = true)
+    @Schema(description = "게스트 이메일", example = "exmaple@naver.com")
     private String guestEmail;
 }

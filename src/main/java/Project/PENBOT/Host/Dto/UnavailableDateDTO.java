@@ -17,6 +17,6 @@ public class UnavailableDateDTO {
     private int blockedDateId;
     private LocalDate startDate;
     private LocalDate endDate;
-    private String reason; // 예: "예약됨", "관리자 차단"
-    private String type;   // "BOOKED" or "BLOCKED"
+    private String reason; // 예: "관리자 차단", " 공사 "
+    private String type;   // "BLOCKED"
 }

@@ -18,4 +18,6 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
     Optional<Booking> findById(int id);
     List<Booking> findAllByStatusIn(List<BookStatus> statuses);
 
+    List<Booking> findByStartDateLessThanEqualAndEndDateGreaterThanEqual(LocalDate monthEnd, LocalDate monthStart);
+
 }
