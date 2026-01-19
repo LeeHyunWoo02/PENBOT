@@ -121,13 +121,11 @@ public class BookingServiceTest {
         LocalDate monthStart = LocalDate.of(year, month, 1);
         LocalDate monthEnd = monthStart.withDayOfMonth(monthStart.lengthOfMonth());
 
-        // 예약 날짜 1월 2일 ~ 1월 4일
         Booking booking = Booking.builder()
                 .startDate(LocalDate.of(2025, 1, 2))
                 .endDate(LocalDate.of(2025, 1, 4))
                 .build();
 
-        // 블락 날짜 1워 10일
         BlockedDate blockedDate = BlockedDate.builder()
                 .startDate(LocalDate.of(2025, 1, 10))
                 .endDate(LocalDate.of(2025, 1, 10))
