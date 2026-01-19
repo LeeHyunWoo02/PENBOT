@@ -3,7 +3,7 @@ package Project.PENBOT.Booking.Controller;
 import Project.PENBOT.Booking.Dto.BookingRequestDTO;
 import Project.PENBOT.Booking.Dto.BookingResponseDTO;
 import Project.PENBOT.Booking.Entity.Booking;
-import Project.PENBOT.Booking.Serivce.BookingService;
+import Project.PENBOT.Booking.Service.BookingService;
 import Project.PENBOT.CustomException.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
