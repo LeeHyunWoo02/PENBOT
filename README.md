@@ -10,7 +10,7 @@
 [![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 [![Nginx](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white)](https://nginx.org/)
 
-[![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-penbot.vercel.app-0F6E56?style=for-the-badge)](https://penbot.vercel.app/)
+[![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-penbot.vercel.app-0F6E56?style=for-the-badge)](https://penbot.site/)
 
 </div>
 
@@ -143,6 +143,6 @@ https://penbot.site/
 ## 📬 문의
 
 - **개발자** : [이현우](https://github.com/LeeHyunWoo02)
-- **서비스** : [penbot.vercel.app](https://penbot.vercel.app/)
+- **서비스** : https://penbot.site/
 
 ![footer](https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=14&height=150&section=footer)
