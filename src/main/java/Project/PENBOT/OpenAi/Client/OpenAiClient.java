@@ -2,9 +2,9 @@ package Project.PENBOT.OpenAi.Client;
 
 
 
+import Project.PENBOT.CustomException.ExternalApiException;
 import Project.PENBOT.OpenAi.Dto.OpenAiRequest;
 import Project.PENBOT.OpenAi.Dto.OpenAiResponse;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -32,7 +32,7 @@ public class OpenAiClient {
     /**
      * 사용자 질문을 GPT 모델에 전달하고 응답 받기.
      * */
-    public OpenAiResponse getChatCompletion(OpenAiRequest requestDto) throws JsonProcessingException {
+    public OpenAiResponse getChatCompletion(OpenAiRequest requestDto) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
@@ -42,9 +42,9 @@ public class OpenAiClient {
 
         ResponseEntity<OpenAiResponse> res = restTemplate.postForEntity(
                 APIURL, entity, OpenAiResponse.class);
-//        if (!res.getStatusCode().is2xxSuccessful() || res.getBody() == null) {
-//            throw new JsonProcessingException();
-//        }
+        if (!res.getStatusCode().is2xxSuccessful() || res.getBody() == null) {
+            throw new ExternalApiException("AI 응답을 가져오지 못했습니다.");
+        }
         return res.getBody();
     }
 

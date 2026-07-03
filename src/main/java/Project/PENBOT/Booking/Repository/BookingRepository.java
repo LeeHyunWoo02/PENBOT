@@ -20,4 +20,9 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
 
     List<Booking> findByStartDateLessThanEqualAndEndDateGreaterThanEqual(LocalDate monthEnd, LocalDate monthStart);
 
+    /**
+     * 비회원 예약 조회 - 이름/전화번호/비밀번호 일치 여부로 조회
+     * */
+    List<Booking> findByGuestNameAndGuestPhoneAndPassword(String guestName, String guestPhone, Integer password);
+
 }

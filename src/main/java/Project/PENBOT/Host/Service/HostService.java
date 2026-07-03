@@ -116,7 +116,7 @@ public class HostService {
     @Transactional
     public BlockedDateResponseDTO createBlockedDate(BlockDateRequestDTO requestDTO) {
 
-        if (isAvailable(requestDTO.getEndDate(), requestDTO.getStartDate())) {
+        if (hasDateConflict(requestDTO.getEndDate(), requestDTO.getStartDate())) {
             throw new BlockedDateConflictException();
         }
 
@@ -161,7 +161,7 @@ public class HostService {
 
 
 
-    public boolean isAvailable(LocalDate startDate, LocalDate endDate){
+    public boolean hasDateConflict(LocalDate startDate, LocalDate endDate){
         boolean isBooked = bookingRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(endDate, startDate);
         boolean isBlocked = blockedDateRepository.existsByStartDateLessThanEqualAndEndDateGreaterThanEqual(endDate, startDate); // BlockedDate 존재 여부
 

@@ -25,7 +25,7 @@ public class PrincipalDetailsService implements UserDetailsService {
         }
         return User.builder()
                 .username(admin.getUsername())
-                .password("{noop}" + admin.getPassword())
+                .password(admin.getPassword())
                 .roles("HOST")
                 .build();
     }

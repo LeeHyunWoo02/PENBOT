@@ -25,9 +25,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf' //thymeleaf
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13'// openAi
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13' // Swagger UI
 	implementation 'net.nurigo:sdk:4.3.0' // coolSMS API
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'	//Swagger
 	implementation 'org.projectlombok:lombok'
 
 	annotationProcessor 'org.projectlombok:lombok'

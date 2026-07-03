@@ -2,7 +2,9 @@ package Project.PENBOT.Booking.Service;
 
 import Project.PENBOT.Booking.Converter.BookingConverter;
 import Project.PENBOT.CustomException.*;
+import Project.PENBOT.Booking.Dto.BookingLookupRequestDTO;
 import Project.PENBOT.Booking.Dto.BookingRequestDTO;
+import Project.PENBOT.Booking.Dto.BookingSimpleDTO;
 import Project.PENBOT.Booking.Entity.Booking;
 import Project.PENBOT.Booking.Repository.BookingRepository;
 import Project.PENBOT.Host.Entity.BlockedDate;
@@ -16,6 +18,7 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -42,6 +45,22 @@ public class BookingService {
         Booking booking = BookingConverter.toEntity(requestDTO);
 
         return bookingRepository.save(booking);
+    }
+
+    // 비회원 예약 조회 - 이름/전화번호/비밀번호가 모두 일치하는 예약만 반환
+    public HashMap<String, BookingSimpleDTO> checkMyBooking(BookingLookupRequestDTO requestDTO) {
+        List<Booking> bookings = bookingRepository.findByGuestNameAndGuestPhoneAndPassword(
+                requestDTO.getGuestName(), requestDTO.getGuestPhone(), requestDTO.getPassword());
+
+        if (bookings.isEmpty()) {
+            throw new BookingNotFoundException("입력하신 정보와 일치하는 예약을 찾을 수 없습니다.");
+        }
+
+        HashMap<String, BookingSimpleDTO> myBookings = new HashMap<>();
+        for (Booking booking : bookings) {
+            myBookings.put(String.valueOf(booking.getId()), BookingConverter.toDTO(booking));
+        }
+        return myBookings;
     }
 
     // 예약 가능한지 확인

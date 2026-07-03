@@ -29,4 +29,9 @@ public class MainController {
     public String reserve() {
         return "reserve";
     }
+
+    @GetMapping("/reservationCheck")
+    public String reservationCheck() {
+        return "reservationCheck";
+    }
 }

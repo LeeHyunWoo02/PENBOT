@@ -1,7 +1,10 @@
 package Project.PENBOT.Booking.Controller;
 
+import Project.PENBOT.Booking.Dto.BookingLookupRequestDTO;
 import Project.PENBOT.Booking.Dto.BookingRequestDTO;
 import Project.PENBOT.Booking.Dto.BookingResponseDTO;
+import Project.PENBOT.Booking.Dto.BookingSimpleDTO;
+import Project.PENBOT.Booking.Dto.MyBookingResponseDTO;
 import Project.PENBOT.Booking.Entity.Booking;
 import Project.PENBOT.Booking.Service.BookingService;
 import Project.PENBOT.CustomException.*;
@@ -10,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 
 @Tag(name = "예약 API", description = "예약 관련 API 제공")
@@ -31,6 +35,19 @@ public class BookingController {
             );
         } catch (Exception e){
             return ResponseEntity.badRequest().body(new BookingResponseDTO(false, 0, e.getMessage()));
+        }
+    }
+
+    /**
+     * 비회원 예약 조회 - 이름/전화번호/예약 비밀번호 일치 시 예약 정보 반환
+     * */
+    @PostMapping("/check")
+    public ResponseEntity<MyBookingResponseDTO> checkMyBooking(@RequestBody BookingLookupRequestDTO requestDTO) {
+        try {
+            HashMap<String, BookingSimpleDTO> myBookings = bookingService.checkMyBooking(requestDTO);
+            return ResponseEntity.ok(new MyBookingResponseDTO(true, myBookings, "예약 정보를 조회했습니다."));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MyBookingResponseDTO(false, null, e.getMessage()));
         }
     }
 
